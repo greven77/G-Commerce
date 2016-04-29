@@ -12,7 +12,9 @@ gem 'mysql2'
 
 gem 'redis-rails'
 
-gem 'devise'
+gem 'devise', "~> 3.4.1"
+
+gem 'active_model_serializers', "~> 0.9.3"
 
 group :development, :test do
   gem 'selenium-webdriver'
