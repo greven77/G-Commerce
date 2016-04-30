@@ -29,7 +29,7 @@ module GCommerce
 
     config.middleware.insert_before 'Rack::Runtime', 'Rack::Cors' do
       allow do
-        origin '*'
+        origins '*'
         resource '*',
                  headers: :any,
                  methods: [:get, :put, :post, :patch, :delete, :options]
