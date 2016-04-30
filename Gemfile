@@ -16,10 +16,11 @@ gem 'devise', "~> 3.4.1"
 
 gem 'active_model_serializers', "~> 0.9.3"
 
+gem 'rack-cors', :require => 'rack/cors'
+
 group :development, :test do
-  gem 'selenium-webdriver'
-  gem 'capybara', '~>2.2.0'
-  gem 'rspec-rails', '~> 3.0.0'
-  gem 'factory_girl_rails', '~> 4.4.0'
-  gem 'database_cleaner', '~> 1.3.0'
+  gem 'capybara', '~>2.4'
+  gem 'rspec-rails', '~> 3.2.1'
+  gem 'factory_girl_rails', '~> 4.5'
+  gem 'database_cleaner', '~> 1.4'
 end

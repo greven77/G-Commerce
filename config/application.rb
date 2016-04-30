@@ -26,5 +26,14 @@ module GCommerce
     config.cache_store = :redis_store, "redis://localhost:6379/0/cache", { expires_in: 90.minutes }
 
     config.filter_parameters << :auth_token
+
+    config.middleware.insert_before 'Rack::Runtime', 'Rack::Cors' do
+      allow do
+        origin '*'
+        resource '*',
+                 headers: :any,
+                 methods: [:get, :put, :post, :patch, :delete, :options]
+      end
+    end
   end
 end
