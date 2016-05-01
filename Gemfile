@@ -23,4 +23,6 @@ group :development, :test do
   gem 'rspec-rails', '~> 3.2.1'
   gem 'factory_girl_rails', '~> 4.5'
   gem 'database_cleaner', '~> 1.4'
+  gem 'faker'
+  gem 'shoulda-matchers', '~> 3.1'
 end

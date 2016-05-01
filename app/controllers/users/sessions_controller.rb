@@ -31,7 +31,7 @@ class Users::SessionsController < DeviseController
 
   def failure
     warden.custom_failure!
-    render status: 200,
+    render status: 401,
            json: {
              success: false,
              info: "Login failed",
