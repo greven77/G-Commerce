@@ -7,5 +7,7 @@ Rails.application.routes.draw do
 
   get 'users', :to => 'users#index'
 
+  resources :products
+
   # add catch all routes for react rails
 end
