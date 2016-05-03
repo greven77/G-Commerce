@@ -9,7 +9,7 @@ class ApplicationController < ActionController::API
   end
 
   def authenticate_user_from_token!
-    if authenticate_user && Devise.secure_compare(user.authentication_token, params[:auth_token])
+    if authenticate_user && Devise.secure_compare(@user.authentication_token, params[:auth_token])
       @current_user = authenticate_user
     else
       return permission_denied
@@ -17,6 +17,6 @@ class ApplicationController < ActionController::API
   end
 
   def permission_denied
-    render :file => "public/401.html", :status => :unauthorized, :layout => false
+    render json: { error: "Unauthorized"}, status: 401
   end
 end

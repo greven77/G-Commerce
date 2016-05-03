@@ -1,4 +1,4 @@
-class Admin::Products < Admin::BaseController
+class Admin::ProductsController < Admin::BaseController
   before_filter :authenticate_user_from_token!
   before_action :set_product, except: [:index, :create]
 
@@ -43,15 +43,7 @@ class Admin::Products < Admin::BaseController
   end
 
   def show
-    if @product
-      render status: :ok,
-             json: @product
-    else
-      render status: :not_found,
-             json: {
-               error: "Product #{params[:id]} not found"
-             }
-    end
+    render status: :ok, json: @product if @product
   end
 
   private
@@ -63,5 +55,11 @@ class Admin::Products < Admin::BaseController
   end
 
   def set_product
+    @product = Product.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render status: :not_found,
+           json: {
+             error: "Product #{params[:id]} not found"
+           }
   end
 end
