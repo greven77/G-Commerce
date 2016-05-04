@@ -52,6 +52,22 @@ RSpec.describe Admin::ProductsController, type: :controller do
           @product = FactoryGirl.create(:product, :priceless).as_json
         end
       end
+
+      describe "DELETE #destroy" do
+        before(:each) do
+          @products = FactoryGirl.create_list(:product, 10)
+          @product = @products.sample
+          delete :destroy, id: @product.id, auth_user_id: admin.id,
+                 auth_token: admin.authentication_token
+        end
+
+        it { should respond_with 204}
+        it "deleted product should not be present" do
+          expect {
+               Product.find(@product.id)
+             }.to raise_exception(ActiveRecord::RecordNotFound)
+        end
+      end
     end
 
     describe "PUT #update" do
@@ -117,6 +133,14 @@ RSpec.describe Admin::ProductsController, type: :controller do
         expect(response.status).to eq(401)
       end
     end
+
+    describe "DELETE #destroy" do
+      it "should not be authorized to access" do
+        delete :destroy, id: @product.id, auth_user_id: customer.id,
+            auth_token: customer.authentication_token
+        expect(response.status).to eq(401)
+      end
+    end
   end
 
   context "not logged users" do
@@ -148,6 +172,14 @@ RSpec.describe Admin::ProductsController, type: :controller do
         put :update, product: @product.as_json,
             id: @product.id,
             auth_user_id: not_logged.id,
+            auth_token: nil
+        expect(response.status).to eq(401)
+      end
+    end
+
+    describe "DELETE #destroy" do
+      it "should not be authorized to access" do
+        delete :destroy, id: @product.id, auth_user_id: not_logged.id,
             auth_token: nil
         expect(response.status).to eq(401)
       end
