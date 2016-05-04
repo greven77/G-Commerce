@@ -6,6 +6,7 @@ class User < ActiveRecord::Base
   validates :password_confirmation, presence: true, on: [:create]
 #  validates :role, presence: true
   belongs_to :role
+  has_many :feedbacks
   before_create :set_default_role
   before_save :ensure_authentication_token
 
