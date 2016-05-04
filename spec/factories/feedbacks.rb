@@ -1,8 +1,7 @@
 FactoryGirl.define do
   factory :feedback do
-    comment "MyText"
-rating 1
-product nil
+    comment Faker::Lorem.sentences
+    rating (0..5).to_a.sample
+    association :product
   end
-
 end

@@ -7,10 +7,14 @@ Rails.application.routes.draw do
 
   get 'users', :to => 'users#index'
 
-  resources :products
+  resources :products do
+    resources :feedbacks, except: [:update]
+  end
 
   namespace :admin do
-    resources :products
+    resources :products do
+      resources :feedbacks
+    end
   end
 
   # add catch all routes for react rails
