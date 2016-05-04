@@ -28,7 +28,7 @@ class Admin::ProductsController < Admin::BaseController
   end
 
   def update
-    if @product.update(trip_params)
+    if @product.update(product_params)
       render status: :ok,
              json: @product
     else

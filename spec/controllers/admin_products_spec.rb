@@ -53,6 +53,35 @@ RSpec.describe Admin::ProductsController, type: :controller do
         end
       end
     end
+
+    describe "PUT #update" do
+      before(:each) do
+        @product = FactoryGirl.create(:product)
+        @old_product = @product.clone.as_json
+        @product.name = "new name"
+        @product.description = "new lorem ip"
+        @product.save
+        put :update, product: @product.as_json,
+            id: @product.id,
+            auth_user_id: admin.id,
+            auth_token: admin.authentication_token
+        @body = JSON.parse(response.body)
+      end
+
+      it { should respond_with 200 }
+
+      it "should reflect the changes made to its data" do
+        @product = @product.as_json.except("created_at", "updated_at")
+        @body = @body.except("created_at", "updated_at")
+        expect(@body).to eq(@product)
+      end
+
+      it "should not contain the old values" do
+        @old_product = @old_product.except("created_at", "updated_at")
+        @body = @body.except("created_at", "updated_at")
+        expect(@body).to_not eq(@old_product)
+      end
+    end
   end
 
   context "customer users" do
@@ -75,6 +104,19 @@ RSpec.describe Admin::ProductsController, type: :controller do
         expect(response.status).to eq(401)
       end
     end
+
+    describe "PUT #update" do
+      it "should not be authorized to access" do
+        @product.name = "new name"
+        @product.description = "new lorem ip"
+        @product.save
+        put :update, product: @product.as_json,
+            id: @product.id,
+            auth_user_id: customer.id,
+            auth_token: customer.authentication_token
+        expect(response.status).to eq(401)
+      end
+    end
   end
 
   context "not logged users" do
@@ -94,6 +136,19 @@ RSpec.describe Admin::ProductsController, type: :controller do
       it "should not be authorized to access" do
         post :create, product: @product, auth_user_id: not_logged.id,
              auth_token: nil
+        expect(response.status).to eq(401)
+      end
+    end
+
+    describe "PUT #update" do
+      it "should not be authorized to access" do
+        @product.name = "new name"
+        @product.description = "new lorem ip"
+        @product.save
+        put :update, product: @product.as_json,
+            id: @product.id,
+            auth_user_id: not_logged.id,
+            auth_token: nil
         expect(response.status).to eq(401)
       end
     end
