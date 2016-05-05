@@ -11,7 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160504225755) do
+ActiveRecord::Schema.define(version: 20160505194710) do
+
+  create_table "categories", force: :cascade do |t|
+    t.string   "name",       limit: 255
+    t.integer  "parent_id",  limit: 4
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
 
   create_table "feedbacks", force: :cascade do |t|
     t.text     "comment",    limit: 65535
@@ -32,7 +39,10 @@ ActiveRecord::Schema.define(version: 20160504225755) do
     t.decimal  "price",                    precision: 10
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
+    t.integer  "category_id",  limit: 4
   end
+
+  add_index "products", ["category_id"], name: "index_products_on_category_id", using: :btree
 
   create_table "roles", force: :cascade do |t|
     t.string   "name",       limit: 255
@@ -64,5 +74,6 @@ ActiveRecord::Schema.define(version: 20160504225755) do
 
   add_foreign_key "feedbacks", "products"
   add_foreign_key "feedbacks", "users"
+  add_foreign_key "products", "categories"
   add_foreign_key "users", "roles"
 end

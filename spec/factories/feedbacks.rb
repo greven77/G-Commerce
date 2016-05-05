@@ -3,6 +3,6 @@ FactoryGirl.define do
     comment Faker::Lorem.sentences
     rating (0..5).to_a.sample
     association :product
-    association :user, email: Faker::Internet.email
+    association :user
   end
 end

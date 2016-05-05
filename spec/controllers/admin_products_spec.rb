@@ -8,7 +8,7 @@ RSpec.describe Admin::ProductsController, type: :controller do
   context "admin users" do
     describe "GET #show" do
       before(:each)do
-        @product = FactoryGirl.create(:product)
+        @product = FactoryGirl.create(:product_with_feedback)
         get :show, id: @product.id, auth_user_id: admin.id,
             auth_token: admin.authentication_token
       end
@@ -18,7 +18,11 @@ RSpec.describe Admin::ProductsController, type: :controller do
       it "requires a valid product id", skip_before: true do
         get :show, id: 3245, auth_user_id: admin.id,
             auth_token: admin.authentication_token
-        expect(response.status).to eq(404)
+        should respond_with 404
+      end
+
+      it "should contain 5 feedbacks" do
+        expect(@product.feedbacks.count).to eq(5)
       end
     end
 

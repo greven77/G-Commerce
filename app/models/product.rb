@@ -1,6 +1,7 @@
 class Product < ActiveRecord::Base
   validates_presence_of :name, :price
   has_many :feedbacks
+  belongs_to :category
 
   def rating
     rating_sum = self.feedbacks.inject(0) { |sum, n| sum + n.rating }

@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :product do
     name "MyString"
-    product_code "MyString"
+    product_code { Faker::Code.ean }
     description "MyString"
     price "9.99"
 

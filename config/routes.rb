@@ -12,8 +12,10 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
-    resources :products do
-      resources :feedbacks
+    resources :categories do
+      resources :products do
+        resources :feedbacks
+      end
     end
   end
 
