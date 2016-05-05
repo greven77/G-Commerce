@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Admin::ProductsController, type: :controller do
+  let!(:category) { FactoryGirl.create(:category) }
   let!(:admin) { FactoryGirl.create(:user, :admin) }
   let!(:customer) { FactoryGirl.create(:user, :customer) }
   let!(:not_logged) { FactoryGirl.create(:user, :tokenless)}
@@ -10,6 +11,7 @@ RSpec.describe Admin::ProductsController, type: :controller do
       before(:each)do
         @product = FactoryGirl.create(:product_with_feedback)
         get :show, id: @product.id, auth_user_id: admin.id,
+            category_id: category.id,
             auth_token: admin.authentication_token
       end
 
@@ -17,7 +19,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
 
       it "requires a valid product id", skip_before: true do
         get :show, id: 3245, auth_user_id: admin.id,
-            auth_token: admin.authentication_token
+            auth_token: admin.authentication_token,
+            category_id: category.id
         should respond_with 404
       end
 
@@ -31,7 +34,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
         @product = FactoryGirl.create(:product)
         post :create, product: @product.as_json,
              auth_user_id: admin.id,
-             auth_token: admin.authentication_token
+             auth_token: admin.authentication_token,
+             category_id: category.id
       end
       it { should respond_with 201}
 
@@ -44,7 +48,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
         after(:each) do
           post :create, product: @product,
                auth_user_id: admin.id,
-               auth_token: admin.authentication_token
+               auth_token: admin.authentication_token,
+               category_id: category.id
           should respond_with 422
         end
 
@@ -62,7 +67,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
           @products = FactoryGirl.create_list(:product, 10)
           @product = @products.sample
           delete :destroy, id: @product.id, auth_user_id: admin.id,
-                 auth_token: admin.authentication_token
+                 auth_token: admin.authentication_token,
+                 category_id: category.id
         end
 
         it { should respond_with 204}
@@ -84,7 +90,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
         put :update, product: @product.as_json,
             id: @product.id,
             auth_user_id: admin.id,
-            auth_token: admin.authentication_token
+            auth_token: admin.authentication_token,
+            category_id: category.id
         @body = JSON.parse(response.body)
       end
 
@@ -112,7 +119,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
     describe "GET #show" do
       it "should not be authorized to access" do
         get :show, id: @product.id, auth_user_id: customer.id,
-            auth_token: customer.authentication_token
+            auth_token: customer.authentication_token,
+            category_id: category.id
         expect(response.status).to eq(401)
       end
     end
@@ -120,7 +128,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
     describe "POST #create" do
       it "should not be authorized to access" do
         post :create, product: @product, auth_user_id: customer.id,
-             auth_token: customer.authentication_token
+             auth_token: customer.authentication_token,
+             category_id: category.id
         expect(response.status).to eq(401)
       end
     end
@@ -133,7 +142,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
         put :update, product: @product.as_json,
             id: @product.id,
             auth_user_id: customer.id,
-            auth_token: customer.authentication_token
+            auth_token: customer.authentication_token,
+            category_id: category.id
         expect(response.status).to eq(401)
       end
     end
@@ -141,7 +151,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
     describe "DELETE #destroy" do
       it "should not be authorized to access" do
         delete :destroy, id: @product.id, auth_user_id: customer.id,
-            auth_token: customer.authentication_token
+               auth_token: customer.authentication_token,
+               category_id: category.id
         expect(response.status).to eq(401)
       end
     end
@@ -155,7 +166,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
     describe "GET #show" do
       it "should not be authorized to access" do
         get :show, id: @product.id, auth_user_id: not_logged.id,
-            auth_token: nil
+            auth_token: nil,
+            category_id: category.id
         expect(response.status).to eq(401)
       end
     end
@@ -163,7 +175,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
     describe "POST #create" do
       it "should not be authorized to access" do
         post :create, product: @product, auth_user_id: not_logged.id,
-             auth_token: nil
+             auth_token: nil,
+              category_id: category.id
         expect(response.status).to eq(401)
       end
     end
@@ -176,7 +189,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
         put :update, product: @product.as_json,
             id: @product.id,
             auth_user_id: not_logged.id,
-            auth_token: nil
+            auth_token: nil,
+            category_id: category.id
         expect(response.status).to eq(401)
       end
     end
@@ -184,7 +198,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
     describe "DELETE #destroy" do
       it "should not be authorized to access" do
         delete :destroy, id: @product.id, auth_user_id: not_logged.id,
-            auth_token: nil
+               auth_token: nil,
+               category_id: category.id
         expect(response.status).to eq(401)
       end
     end
