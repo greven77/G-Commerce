@@ -7,14 +7,21 @@ Rails.application.routes.draw do
 
   get 'users', :to => 'users#index'
 
-  resources :products do
-    resources :feedbacks, except: [:update]
+  resources :categories, param: :name, only: [:index, :show] do
+    resources :products, only: [:index, :show] do
+      resources :feedbacks, except: [:update]
+    end
   end
 
   namespace :admin do
-    resources :categories do
+    resources :categories, param: :name do
       resources :products do
         resources :feedbacks
+      end
+      resources :categories, param: :name, path: '/' do
+        resources :products do
+          resources :feedbacks
+        end
       end
     end
   end

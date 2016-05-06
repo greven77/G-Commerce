@@ -4,6 +4,7 @@ FactoryGirl.define do
     product_code { Faker::Code.ean }
     description "MyString"
     price "9.99"
+    association :category
 
     factory :product_with_feedback do
       transient do

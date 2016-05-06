@@ -1,3 +1,3 @@
 class CategorySerializer < ActiveModel::Serializer
-  attributes :id, :name, :parent_id
+  attributes :id, :name, :products, :subcategories
 end

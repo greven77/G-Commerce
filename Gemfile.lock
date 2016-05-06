@@ -38,6 +38,8 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
+    ancestry (2.1.0)
+      activerecord (>= 3.0.0)
     arel (6.0.3)
     bcrypt (3.1.11)
     builder (3.2.2)
@@ -174,6 +176,7 @@ PLATFORMS
 
 DEPENDENCIES
   active_model_serializers (~> 0.9.3)
+  ancestry
   capybara (~> 2.4)
   database_cleaner (~> 1.4)
   devise (~> 3.4.1)

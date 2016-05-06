@@ -18,6 +18,8 @@ gem 'active_model_serializers', "~> 0.9.3"
 
 gem 'rack-cors', :require => 'rack/cors'
 
+gem 'ancestry'
+
 group :development, :test do
   gem 'capybara', '~>2.4'
   gem 'rspec-rails', '~> 3.2.1'

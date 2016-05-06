@@ -12,6 +12,7 @@ RSpec.describe Category, type: :model do
   it { should have_many :products }
   it { should have_many :children }
   it { should belong_to :parent }
+  it { should validate_presence_of :name }
 
   describe "category" do
     it "should have children" do

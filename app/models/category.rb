@@ -1,17 +1,17 @@
 class Category < ActiveRecord::Base
-  belongs_to :parent, class_name: "Category"
-  has_many :children, class_name: "Category", foreign_key: "parent_id"
+  has_ancestry
   has_many :products
+  validates :name, presence: true
+  
+#  def subcategories
+#    self[:subcategories]
+#  end
 
-  def parent_name
-    parent.try(:name)
-  end
+#  def subcategories=(val)
+#    self[:subcategories] = val
+#  end
 
-  def has_parent?
-    parent.present?
-  end
-
-  def has_children?
-    children.exists?
+  def subcategories
+    descendants.map { |category| CategorySerializer.new(category) }
   end
 end
