@@ -2,16 +2,14 @@ require 'rails_helper'
 
 RSpec.describe Category, type: :model do
   let!(:category) { FactoryGirl.create(:category) }
-  let!(:subcategory_a) { FactoryGirl.create(:category, parent_id: category.id) }
-  let!(:subcategory_b) { FactoryGirl.create(:category, parent_id: category.id) }
+  let!(:subcategory_a) { FactoryGirl.create(:category, parent: category) }
+  let!(:subcategory_b) { FactoryGirl.create(:category, parent: category) }
   before do
     4.times { subcategory_a.products.create(FactoryGirl.attributes_for(:product)) }
     6.times { subcategory_b.products.create(FactoryGirl.attributes_for(:product) )}
   end
 
   it { should have_many :products }
-  it { should have_many :children }
-  it { should belong_to :parent }
   it { should validate_presence_of :name }
 
   describe "category" do
@@ -31,11 +29,7 @@ RSpec.describe Category, type: :model do
     end
 
     it "should have a parent" do
-      expect(subcategory_a.has_parent?).to be true
-    end
-
-    it "should have a parent name" do
-      expect(subcategory_a.parent_name).not_to be_empty
+      expect(subcategory_a.parent).to be_truthy
     end
   end
 end

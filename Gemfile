@@ -20,6 +20,8 @@ gem 'rack-cors', :require => 'rack/cors'
 
 gem 'ancestry'
 
+gem 'friendly_id', '~> 5.1.0'
+
 group :development, :test do
   gem 'capybara', '~>2.4'
   gem 'rspec-rails', '~> 3.2.1'

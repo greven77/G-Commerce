@@ -1,6 +1,6 @@
 class Product < ActiveRecord::Base
   validates_presence_of :name, :price
-  has_many :feedbacks
+  has_many :feedbacks, dependent: :destroy
   belongs_to :category
 
   def rating

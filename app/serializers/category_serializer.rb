@@ -1,3 +1,5 @@
 class CategorySerializer < ActiveModel::Serializer
-  attributes :id, :name, :products, :subcategories
+  attributes :id, :name, :slug, :subcategories
+  has_many :products
+  self.root = false
 end

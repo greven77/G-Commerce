@@ -31,7 +31,7 @@ RSpec.describe Admin::ProductsController, type: :controller do
 
     describe "POST #create" do
       before(:each)do
-        @product = FactoryGirl.create(:product)
+        @product = FactoryGirl.build(:product)
         post :create, product: @product.as_json,
              auth_user_id: admin.id,
              auth_token: admin.authentication_token,
@@ -82,7 +82,7 @@ RSpec.describe Admin::ProductsController, type: :controller do
 
     describe "PUT #update" do
       before(:each) do
-        @product = FactoryGirl.create(:product)
+        @product = FactoryGirl.create(:product_with_feedback)
         @old_product = @product.clone.as_json
         @product.name = "new name"
         @product.description = "new lorem ip"
@@ -99,13 +99,13 @@ RSpec.describe Admin::ProductsController, type: :controller do
 
       it "should reflect the changes made to its data" do
         @product = @product.as_json.except("created_at", "updated_at")
-        @body = @body.except("created_at", "updated_at")
+        @body = @body.except("feedbacks","created_at", "updated_at")
         expect(@body).to eq(@product)
       end
 
       it "should not contain the old values" do
         @old_product = @old_product.except("created_at", "updated_at")
-        @body = @body.except("created_at", "updated_at")
+        @body = @body.except("feedbacks", "created_at", "updated_at")
         expect(@body).to_not eq(@old_product)
       end
     end

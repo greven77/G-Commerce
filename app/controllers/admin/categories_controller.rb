@@ -16,9 +16,12 @@ class Admin::CategoriesController < Admin::BaseController
   end
 
   def create
+    #puts category_params
     @category = Category.new(category_params)
-
+    # implement subcategories addition case params[:subcategories]
     if @category.save
+      subcategories = category_params["subcategories"]
+      @category.add_subcategories(subcategories) if subcategories
       render status: :created,
              json: @category
     else
@@ -49,17 +52,17 @@ class Admin::CategoriesController < Admin::BaseController
   private
 
   def category_params
+    #params[:category][:subcategories] ||= []
     params.require(:category)
-      .permit(:name, :category_code, :description, :price,
-              category_attributes: [:id])
+      .permit(:name, subcategories: [:name, subcategories: []])
   end
 
   def set_category
-    @category = Category.find(params[:name])
+    @category = Category.friendly.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     render status: :not_found,
            json: {
-             error: "Category #{params[:name]} not found"
+             error: "Category #{params[:id]} not found"
            }
   end
 end
