@@ -7,10 +7,12 @@ class Admin::ProductsController < Admin::BaseController
   before_action :set_product, except: [:index, :create]
 
   def index
-    @products = paginate(Product, product_params)
+    products = Product.by_category(product_params[:category_id])
+    paginated_products = paginate(products, product_params)
+    @products = paginated_products[:collection]
 
     if @products
-      render json: @products
+      render json: {@products, paginated_products[:meta]}
     else
       render status: :not_found,
         json: {

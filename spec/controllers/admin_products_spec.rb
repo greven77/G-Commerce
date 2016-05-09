@@ -24,6 +24,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
       it "should return page count"
 
       it "should return record count"
+
+      it "should return products belonging to a category"
     end
 
     describe "GET #show" do

@@ -6,6 +6,12 @@ class Product < ActiveRecord::Base
   max_paginates_per 100
   attr_accessor :image_url
 
+  scope :by_category, lambda { |category_id|
+    if category_id.present?
+      where(category_id: category_id)
+    end
+  }
+
   def rating
     rating_sum = self.feedbacks.inject(0) { |sum, n| sum + n.rating }
     feedback_count =  self.feedbacks.count.to_f
