@@ -22,6 +22,11 @@ gem 'ancestry'
 
 gem 'friendly_id', '~> 5.1.0'
 
+gem 'mini_magick'
+
+gem 'carrierwave'
+gem 'carrierwave-base64'
+
 group :development, :test do
   gem 'capybara', '~>2.4'
   gem 'rspec-rails', '~> 3.2.1'

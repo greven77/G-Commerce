@@ -16,3 +16,4 @@
 !/log/.keep
 /tmp
 .projectile
+/public/uploads

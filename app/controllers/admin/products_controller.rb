@@ -16,8 +16,8 @@ class Admin::ProductsController < Admin::BaseController
   end
 
   def create
-    @product = Product.new(product_params)
-
+    #@product = Product.new(product_params)
+    @product = Product.new(convert_data_uri_to_upload(product_params))
     if @product.save
       render status: :created,
              json: @product
@@ -28,7 +28,7 @@ class Admin::ProductsController < Admin::BaseController
   end
 
   def update
-    if @product.update(product_params)
+    if @product.update(convert_data_uri_to_upload(product_params))
       render status: :ok,
              json: @product
     else
@@ -51,6 +51,8 @@ class Admin::ProductsController < Admin::BaseController
   def product_params
     params.require(:product)
       .permit(:name, :product_code, :description, :price,
+              :image,
+              :image_url,
               category_attributes: [:id])
   end
 

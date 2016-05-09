@@ -35,8 +35,8 @@ RSpec.describe Admin::CategoriesController, type: :controller do
         @category["subcategories"] =  [{"name" => "name1"}, {"name" => "name2"}]
         post :create, category: @category,
              auth_user_id: admin.id,
-             auth_token: admin.authentication_token,
-             params: { subcategories: @category["subcategories"] }
+             auth_token: admin.authentication_token
+#             params: { subcategories: @category["subcategories"] }
         @body = JSON.parse(response.body)
       end
       it { should respond_with 201}

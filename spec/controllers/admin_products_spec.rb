@@ -5,6 +5,9 @@ RSpec.describe Admin::ProductsController, type: :controller do
   let!(:admin) { FactoryGirl.create(:user, :admin) }
   let!(:customer) { FactoryGirl.create(:user, :customer) }
   let!(:not_logged) { FactoryGirl.create(:user, :tokenless)}
+  let!(:b64image) do
+    Base64.encode64(File.open(Rails.root + "spec/fixtures/files/image1.jpg", "rb").read)
+  end
 
   context "admin users" do
     describe "GET #show" do
@@ -30,18 +33,27 @@ RSpec.describe Admin::ProductsController, type: :controller do
     end
 
     describe "POST #create" do
-      before(:each)do
-        @product = FactoryGirl.build(:product)
+      before do
+        @product = FactoryGirl.build(:product).as_json.except("image")
+        @product["image_url"] = "data:image/jpg;base64,#{b64image}"
         post :create, product: @product.as_json,
              auth_user_id: admin.id,
              auth_token: admin.authentication_token,
              category_id: category.id
+        @body = JSON.parse(response.body)
       end
       it { should respond_with 201}
 
       it "should retrieve server side generated id" do
-        body = JSON.parse(response.body)
-        expect(body["id"]).to_not eq(@product.id)
+        expect(@body["id"]).to_not eq(@product["id"])
+      end
+
+      it "should have a image url" do
+        expect(@body["image_url"]).to_not be_empty
+      end
+
+      it "should have a image physically" do
+        expect(File).to exist("#{Rails.root}/public/#{@body["image_url"]}")
       end
 
       describe "Shouldn't allow creation" do
@@ -61,34 +73,44 @@ RSpec.describe Admin::ProductsController, type: :controller do
           @product = FactoryGirl.create(:product, :priceless).as_json
         end
       end
+    end
 
       describe "DELETE #destroy" do
         before(:each) do
-          @products = FactoryGirl.create_list(:product, 10)
-          @product = @products.sample
+          @product = FactoryGirl.create(:product_with_feedback)
           delete :destroy, id: @product.id, auth_user_id: admin.id,
                  auth_token: admin.authentication_token,
                  category_id: category.id
         end
 
         it { should respond_with 204}
+
         it "deleted product should not be present" do
           expect {
                Product.find(@product.id)
              }.to raise_exception(ActiveRecord::RecordNotFound)
         end
-      end
+
+        it "should delete image" do
+          expect(File).not_to exist("#{Rails.root}@image_url")
+        end
     end
 
     describe "PUT #update" do
-      before(:each) do
-        @product = FactoryGirl.create(:product_with_feedback)
+      let!(:b64image_2) do
+        Base64.encode64(File.open(Rails.root + "spec/fixtures/files/image2.jpg", "rb").read)
+      end
+
+      before do
+        @product = FactoryGirl.create(:product_with_feedback, :with_image)
         @old_product = @product.clone.as_json
-        @product.name = "new name"
-        @product.description = "new lorem ip"
-        @product.save
-        put :update, product: @product.as_json,
-            id: @product.id,
+        @product = @product.as_json.except("image")
+        @product["name"] = "new name"
+        @product["description"] = "new lorem ip"
+        @product["image_url"] = "data:image/jpg;base64,#{b64image_2}"
+        
+        put :update, product: @product,
+            id: @product["id"],
             auth_user_id: admin.id,
             auth_token: admin.authentication_token,
             category_id: category.id
@@ -97,16 +119,14 @@ RSpec.describe Admin::ProductsController, type: :controller do
 
       it { should respond_with 200 }
 
-      it "should reflect the changes made to its data" do
-        @product = @product.as_json.except("created_at", "updated_at")
-        @body = @body.except("feedbacks","created_at", "updated_at")
-        expect(@body).to eq(@product)
+      it "should not contain the old values" do
+        @old_product = @old_product.except("created_at", "updated_at", "image")
+        @body = @body.except("feedbacks", "created_at", "updated_at", "image_url")
+        expect(@body).to_not eq(@old_product)
       end
 
-      it "should not contain the old values" do
-        @old_product = @old_product.except("created_at", "updated_at")
-        @body = @body.except("feedbacks", "created_at", "updated_at")
-        expect(@body).to_not eq(@old_product)
+      it "should update image_url" do
+        expect(@old_product["image_url"]).to_not eq(@body["image_url"])
       end
     end
   end
