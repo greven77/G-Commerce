@@ -5,7 +5,7 @@ FactoryGirl.define do
 
     factory :category_with_products do
       transient do
-        product_count 5
+        product_count 150
       end
 
       after(:create) do |category, evaluator|

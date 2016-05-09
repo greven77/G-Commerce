@@ -10,6 +10,22 @@ RSpec.describe Admin::ProductsController, type: :controller do
   end
 
   context "admin users" do
+    describe "GET #index" do
+      before do
+        @products = FactoryGirl.create_list(:product_with_feedback, 150)
+      end
+
+      it "should return 25 records only if no page or per page is specified"
+
+      it "should return 100 records max"
+
+      it "should return current page"
+
+      it "should return page count"
+
+      it "should return record count"
+    end
+
     describe "GET #show" do
       before(:each)do
         @product = FactoryGirl.create(:product_with_feedback)

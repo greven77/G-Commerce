@@ -1,9 +1,12 @@
 class Admin::FeedbacksController < Admin::BaseController
+  include Pagination
+
   before_filter :authenticate_user_from_token!, except: [:index]
   before_action :set_feedback, except: [:index, :create]
 
   def index
-    @feedbacks = Feedback.where(product_id: params[:product_id])
+    @feedbacks = paginate(Feedback.where(product_id: params[:product_id]),
+                          feedback_params)
 
     if @feedbacks
       render json: @feedbacks
@@ -41,7 +44,8 @@ class Admin::FeedbacksController < Admin::BaseController
   def feedback_params
     params.require(:feedback)
       .permit(:comment, :rating,
-              :product_id, :user_id)
+              :product_id, :user_id,
+              :page, :per_page)
   end
 
   def set_feedback
