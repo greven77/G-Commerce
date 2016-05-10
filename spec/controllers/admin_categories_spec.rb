@@ -23,9 +23,9 @@ RSpec.describe Admin::CategoriesController, type: :controller do
         should respond_with 404
       end
 
-      it "should contain 5 products" do
+      it "should contain 25 products" do
         response_products = JSON.parse(response.body)["products"]
-        expect(response_products.count).to eq(5)
+        expect(response_products.count).to eq(25)
       end
     end
 

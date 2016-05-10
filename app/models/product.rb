@@ -3,7 +3,7 @@ class Product < ActiveRecord::Base
   has_many :feedbacks, dependent: :destroy
   belongs_to :category
   mount_uploader :image, ProductImageUploader
-  max_paginates_per 100
+  max_paginates_per 50
   attr_accessor :image_url
 
   scope :by_category, lambda { |category_id|

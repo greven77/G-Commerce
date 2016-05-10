@@ -3,6 +3,10 @@ FactoryGirl.define do
     name { Faker::Commerce.department }
     parent nil
 
+    trait :fixed_id do
+      id 1
+    end
+
     factory :category_with_products do
       transient do
         product_count 150

@@ -12,20 +12,46 @@ RSpec.describe Admin::ProductsController, type: :controller do
   context "admin users" do
     describe "GET #index" do
       before do
-        @products = FactoryGirl.create_list(:product_with_feedback, 150)
+        category = FactoryGirl.create(:category)
+        @products = FactoryGirl.create_list(:product, 55, category_id: category.id)
+        @product = @products.sample
+        @product_category_id = @product.category.id
       end
 
-      it "should return 25 records only if no page or per page is specified"
+      it "should return 25 records only if no page or per page is specified" do
+        get :index, auth_user_id: admin.id, auth_token: admin.authentication_token,
+            category_id: @product_category_id
+        body = JSON.parse(response.body)
+        expect(body["products"].count).to eq(25)
+      end
 
-      it "should return 100 records max"
+      it "should return 50 records max" do
+        get :index, auth_user_id: admin.id, auth_token: admin.authentication_token,
+            category_id: @product_category_id, page: 1, per_page: 55
+        body = JSON.parse(response.body)
+        expect(body["products"].count).to eq(50)
+      end
 
-      it "should return current page"
+      it "should return current page" do
+        get :index, auth_user_id: admin.id, auth_token: admin.authentication_token,
+            category_id: @product_category_id, page: 2, per_page: 20
+        body = JSON.parse(response.body)
+        expect(body["meta"]["current_page"]).to eq(2)
+      end
 
-      it "should return page count"
+      it "should return page count" do
+        get :index, auth_user_id: admin.id, auth_token: admin.authentication_token,
+            category_id: @product_category_id, page: 2, per_page: 20
+        body = JSON.parse(response.body)
+        expect(body["meta"]["page_count"]).to eq(3)
+      end
 
-      it "should return record count"
-
-      it "should return products belonging to a category"
+      it "should return record count" do
+        get :index, auth_user_id: admin.id, auth_token: admin.authentication_token,
+            category_id: @product_category_id, page: 2, per_page: 20
+        body = JSON.parse(response.body)
+        expect(body["meta"]["record_count"]).to eq(55)
+      end
     end
 
     describe "GET #show" do
@@ -54,16 +80,20 @@ RSpec.describe Admin::ProductsController, type: :controller do
       before do
         @product = FactoryGirl.build(:product).as_json.except("image")
         @product["image_url"] = "data:image/jpg;base64,#{b64image}"
+        @product["category_id"] = category.id
         post :create, product: @product.as_json,
              auth_user_id: admin.id,
-             auth_token: admin.authentication_token,
-             category_id: category.id
-        @body = JSON.parse(response.body)
+             auth_token: admin.authentication_token
+             @body = JSON.parse(response.body)
       end
       it { should respond_with 201}
 
       it "should retrieve server side generated id" do
         expect(@body["id"]).to_not eq(@product["id"])
+      end
+
+      it "should have a category id" do
+        expect(@body["category_id"]).to eq(@product["category_id"])
       end
 
       it "should have a image url" do
@@ -130,8 +160,7 @@ RSpec.describe Admin::ProductsController, type: :controller do
         put :update, product: @product,
             id: @product["id"],
             auth_user_id: admin.id,
-            auth_token: admin.authentication_token,
-            category_id: category.id
+            auth_token: admin.authentication_token
         @body = JSON.parse(response.body)
       end
 
@@ -166,8 +195,7 @@ RSpec.describe Admin::ProductsController, type: :controller do
     describe "POST #create" do
       it "should not be authorized to access" do
         post :create, product: @product, auth_user_id: customer.id,
-             auth_token: customer.authentication_token,
-             category_id: category.id
+             auth_token: customer.authentication_token
         expect(response.status).to eq(401)
       end
     end
@@ -180,8 +208,7 @@ RSpec.describe Admin::ProductsController, type: :controller do
         put :update, product: @product.as_json,
             id: @product.id,
             auth_user_id: customer.id,
-            auth_token: customer.authentication_token,
-            category_id: category.id
+            auth_token: customer.authentication_token
         expect(response.status).to eq(401)
       end
     end
@@ -213,8 +240,7 @@ RSpec.describe Admin::ProductsController, type: :controller do
     describe "POST #create" do
       it "should not be authorized to access" do
         post :create, product: @product, auth_user_id: not_logged.id,
-             auth_token: nil,
-              category_id: category.id
+             auth_token: nil
         expect(response.status).to eq(401)
       end
     end
@@ -227,8 +253,7 @@ RSpec.describe Admin::ProductsController, type: :controller do
         put :update, product: @product.as_json,
             id: @product.id,
             auth_user_id: not_logged.id,
-            auth_token: nil,
-            category_id: category.id
+            auth_token: nil
         expect(response.status).to eq(401)
       end
     end

@@ -11,8 +11,8 @@ FactoryGirl.define do
         obj.image_url = obj.image.url
       end
     end
-    association :category
 
+    
     factory :product_with_feedback do
       transient do
         feedback_count 5

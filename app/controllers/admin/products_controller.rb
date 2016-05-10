@@ -1,18 +1,16 @@
 class Admin::ProductsController < Admin::BaseController
   include Pagination
 
-  serialization_scope :serializer_scope
-
   before_filter :authenticate_user_from_token!
   before_action :set_product, except: [:index, :create]
 
   def index
-    products = Product.by_category(product_params[:category_id])
-    paginated_products = paginate(products, product_params)
+    products = Product.by_category(params[:category_id])
+    paginated_products = paginate(products, params)
     @products = paginated_products[:collection]
 
     if @products
-      render json: {@products, paginated_products[:meta]}
+      render json: {products: @products, meta: paginated_products[:meta]}
     else
       render status: :not_found,
         json: {
@@ -54,13 +52,6 @@ class Admin::ProductsController < Admin::BaseController
 
   private
 
-  def serializer_scope
-    {
-      page: product_params[:page],
-      per_page: product_params[:per_page]
-    }
-  end
-
   def product_params
     params.require(:product)
       .permit(:name, :product_code, :description, :price,
@@ -68,7 +59,7 @@ class Admin::ProductsController < Admin::BaseController
               :image_url,
               :page,
               :per_page,
-              category_attributes: [:id])
+              :category_id)
   end
 
   def set_product
