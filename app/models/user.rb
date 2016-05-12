@@ -7,6 +7,7 @@ class User < ActiveRecord::Base
 #  validates :role, presence: true
   belongs_to :role
   has_many :feedbacks, dependent: :destroy
+  has_many :orders, dependent: :destroy
   before_create :set_default_role
   before_save :ensure_authentication_token
 

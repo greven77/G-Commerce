@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe User, :type => :model do
   it { should belong_to :role }
   it { should validate_presence_of :password_confirmation }
+  it { should have_many(:orders) }
 
   context "triggering callbacks" do
     before(:each) do
