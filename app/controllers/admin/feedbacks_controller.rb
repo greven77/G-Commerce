@@ -5,11 +5,12 @@ class Admin::FeedbacksController < Admin::BaseController
   before_action :set_feedback, except: [:index, :create]
 
   def index
-    @feedbacks = paginate(Feedback.where(product_id: params[:product_id]),
-                          feedback_params)
+    feedbacks = Feedback.where(product: params[:product_id])
+    paginated_feedbacks = paginate(feedbacks, params)
+    @feedbacks = paginated_feedbacks[:collection]
 
     if @feedbacks
-      render json: @feedbacks
+      render json: {feedbacks: @feedbacks, meta: paginated_feedbacks[:meta]}
     else
       render status: :not_found,
         json: {

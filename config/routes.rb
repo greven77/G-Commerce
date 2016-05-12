@@ -14,7 +14,9 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
-    resources :products, only: [:create, :update]
+    resources :products, only: [:create, :update] do
+      resources :feedbacks
+    end
     resources :categories do
       resources :products, except: [:create, :update] do
         resources :feedbacks

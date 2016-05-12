@@ -1,14 +1,6 @@
 class FeedbackSerializer < ActiveModel::Serializer
-  attributes :id, :comment, :rating
+  attributes :id, :comment, :rating, :product_id
   belongs_to :product_id
   belongs_to :user_id
-
-  def page_count
-  end
-
-  def current_page
-  end
-
-  def record_count
-  end
+  self.root = false
 end

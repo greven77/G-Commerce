@@ -4,5 +4,13 @@ FactoryGirl.define do
     rating (0..5).to_a.sample
     association :product
     association :user
+
+    trait :commentless do
+      comment nil
+    end
+
+    trait :ratingless do
+      rating nil
+    end
   end
 end
