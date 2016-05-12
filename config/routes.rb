@@ -13,7 +13,17 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :orders #must validate if current user is equal to order id
+
   namespace :admin do
+    resources :order_statuses do
+      member do
+        get :make_default
+      end
+    end
+
+    resources :orders
+
     resources :products, only: [:create, :update] do
       resources :feedbacks
     end
