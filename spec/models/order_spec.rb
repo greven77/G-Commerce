@@ -20,4 +20,7 @@ RSpec.describe Order, type: :model do
     expect(order).to receive(:assign_default_status)
     order.save
   end
+
+  it { should have_many(:placements) }
+  it { should have_many(:products).through(:placements) }
 end

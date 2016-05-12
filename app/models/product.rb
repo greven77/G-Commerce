@@ -2,6 +2,8 @@ class Product < ActiveRecord::Base
   validates_presence_of :name, :price
   has_many :feedbacks, dependent: :destroy
   belongs_to :category
+  has_many :placements
+  has_many :orders, through: :placements
   mount_uploader :image, ProductImageUploader
   max_paginates_per 50
   attr_accessor :image_url

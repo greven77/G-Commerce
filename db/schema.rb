@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160512183038) do
+ActiveRecord::Schema.define(version: 20160512192525) do
 
   create_table "categories", force: :cascade do |t|
     t.string   "name",       limit: 255
@@ -53,6 +53,16 @@ ActiveRecord::Schema.define(version: 20160512183038) do
 
   add_index "orders", ["order_status_id"], name: "index_orders_on_order_status_id", using: :btree
   add_index "orders", ["user_id"], name: "index_orders_on_user_id", using: :btree
+
+  create_table "placements", force: :cascade do |t|
+    t.integer  "order_id",   limit: 4
+    t.integer  "product_id", limit: 4
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
+
+  add_index "placements", ["order_id"], name: "index_placements_on_order_id", using: :btree
+  add_index "placements", ["product_id"], name: "index_placements_on_product_id", using: :btree
 
   create_table "products", force: :cascade do |t|
     t.string   "name",         limit: 255
@@ -99,6 +109,8 @@ ActiveRecord::Schema.define(version: 20160512183038) do
   add_foreign_key "feedbacks", "users"
   add_foreign_key "orders", "order_statuses"
   add_foreign_key "orders", "users"
+  add_foreign_key "placements", "orders"
+  add_foreign_key "placements", "products"
   add_foreign_key "products", "categories"
   add_foreign_key "users", "roles"
 end

@@ -13,4 +13,7 @@ RSpec.describe Product, type: :model do
   it 'should calculate the average rate correctly' do
     expect(product.rating).to eq(2.5)
   end
+
+  it { should have_many(:placements) }
+  it { should have_many(:orders).through(:placements) }
 end
