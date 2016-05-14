@@ -1,9 +1,9 @@
 FactoryGirl.define do
   factory :product do
-    name "MyString"
+    name { Faker::Commerce.product_name }
     product_code { Faker::Code.ean }
     description "MyString"
-    price "9.99"
+    price { Faker::Commerce.price }
     trait :with_image do
       image { Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec', 'fixtures', 'files',
                                                      'image1.jpg'))}
