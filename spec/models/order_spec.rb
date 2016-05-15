@@ -13,7 +13,6 @@ RSpec.describe Order, type: :model do
   it { should belong_to :user }
   it { should belong_to :order_status }
 
-
   it "should assign a default state" do
     expect(order).to receive(:assign_default_status)
     order.save

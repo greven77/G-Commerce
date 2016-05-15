@@ -11,8 +11,14 @@ class User < ActiveRecord::Base
   before_create :set_default_role
   before_save :ensure_authentication_token
 
+  has_one :customer
+
   def admin?
     user_role == 'admin'
+  end
+
+  def customer?
+    user_role == 'customer' && self.customer
   end
 
   def user_role

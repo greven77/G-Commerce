@@ -11,7 +11,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160513160547) do
+ActiveRecord::Schema.define(version: 20160514180221) do
+
+  create_table "addresses", force: :cascade do |t|
+    t.string   "street",      limit: 255
+    t.string   "post_code",   limit: 255
+    t.string   "city",        limit: 255
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+    t.integer  "customer_id", limit: 4
+    t.integer  "country_id",  limit: 4
+  end
+
+  add_index "addresses", ["country_id"], name: "index_addresses_on_country_id", using: :btree
+  add_index "addresses", ["customer_id"], name: "index_addresses_on_customer_id", using: :btree
 
   create_table "categories", force: :cascade do |t|
     t.string   "name",       limit: 255
@@ -23,6 +36,22 @@ ActiveRecord::Schema.define(version: 20160513160547) do
 
   add_index "categories", ["ancestry"], name: "index_categories_on_ancestry", using: :btree
   add_index "categories", ["slug"], name: "index_categories_on_slug", using: :btree
+
+  create_table "countries", force: :cascade do |t|
+    t.string   "name",       limit: 255
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  create_table "customers", force: :cascade do |t|
+    t.integer  "user_id",    limit: 4
+    t.string   "name",       limit: 255
+    t.string   "phone",      limit: 255
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  add_index "customers", ["user_id"], name: "index_customers_on_user_id", using: :btree
 
   create_table "feedbacks", force: :cascade do |t|
     t.text     "comment",    limit: 65535
@@ -53,6 +82,18 @@ ActiveRecord::Schema.define(version: 20160513160547) do
 
   add_index "orders", ["order_status_id"], name: "index_orders_on_order_status_id", using: :btree
   add_index "orders", ["user_id"], name: "index_orders_on_user_id", using: :btree
+
+  create_table "payments", force: :cascade do |t|
+    t.string   "type",              limit: 255
+    t.string   "card_number",       limit: 255
+    t.string   "valid_until",       limit: 255
+    t.integer  "verification_code", limit: 4
+    t.integer  "customer_id",       limit: 4
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+  end
+
+  add_index "payments", ["customer_id"], name: "index_payments_on_customer_id", using: :btree
 
   create_table "placements", force: :cascade do |t|
     t.integer  "order_id",   limit: 4
@@ -106,10 +147,14 @@ ActiveRecord::Schema.define(version: 20160513160547) do
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["role_id"], name: "index_users_on_role_id", using: :btree
 
+  add_foreign_key "addresses", "countries"
+  add_foreign_key "addresses", "customers"
+  add_foreign_key "customers", "users"
   add_foreign_key "feedbacks", "products"
   add_foreign_key "feedbacks", "users"
   add_foreign_key "orders", "order_statuses"
   add_foreign_key "orders", "users"
+  add_foreign_key "payments", "customers"
   add_foreign_key "placements", "orders"
   add_foreign_key "placements", "products"
   add_foreign_key "products", "categories"
