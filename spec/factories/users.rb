@@ -7,17 +7,17 @@ FactoryGirl.define do
     password_confirmation "password"
 
     trait :customer do
-      email Faker::Internet.email
+      email {Faker::Internet.email}
       association :role, :name => "customer"
     end
 
     trait :admin do
-      email Faker::Internet.email
+      email {Faker::Internet.email}
       association :role, :name => "admin"
     end
 
     trait :tokenless do
-      email Faker::Internet.email
+      email {Faker::Internet.email}
       after(:create) { |instance| instance.clear_authentication_token }
     end
   end

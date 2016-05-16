@@ -45,7 +45,7 @@ class Admin::FeedbacksController < Admin::BaseController
   def feedback_params
     params.require(:feedback)
       .permit(:comment, :rating,
-              :product_id, :user_id,
+              :product_id, :customer_id,
               :page, :per_page)
   end
 

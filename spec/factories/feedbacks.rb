@@ -3,7 +3,7 @@ FactoryGirl.define do
     comment Faker::Lorem.sentences
     rating (0..5).to_a.sample
     association :product
-    association :user
+    association :customer
 
     trait :commentless do
       comment nil

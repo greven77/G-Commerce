@@ -13,9 +13,13 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :users, :only => [:show, :create, :update, :destroy] do
+  resources :users, :only => [:show, :create, :update]
+
+  resources :customers, :only => [:show, :create, :update] do
     resources :orders
   end
+
+  resources :countries, :only => [:index]
 
   namespace :admin do
     resources :order_statuses do
@@ -24,9 +28,11 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :users do
+    resources :customers do
       resources :orders
     end
+
+    resources :users
 
     resources :products, only: [:create, :update] do
       resources :feedbacks

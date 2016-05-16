@@ -1,52 +1,56 @@
 require 'rails_helper'
 
 RSpec.describe Admin::OrdersController, type: :controller do
-  let!(:admin) { FactoryGirl.create(:user, :admin) }
-  let!(:customer) { FactoryGirl.create(:user, :customer) }
-  let!(:not_logged) { FactoryGirl.create(:user, :tokenless)}
-  let!(:orders) { FactoryGirl.create_list(:order, 55, user: customer ) }
+  let(:admin) { FactoryGirl.create(:user, :admin) }
+  let(:customer) { FactoryGirl.create(:user, :customer) }
+  let(:not_logged) { FactoryGirl.create(:user, :tokenless)}
+  let(:customer_user) { FactoryGirl.create(:customer, user: customer) }
+  let(:orders) { FactoryGirl.create_list(:order, 55, customer: customer_user ) }
 
   context "admin users" do
     describe "GET #index" do
+      before do
+        customer_user
+        orders
+      end
 
       it "should respond with OK status" do
         get :index, auth_user_id: admin.id, auth_token: admin.authentication_token,
-            user_id: admin.id
+            customer_id: customer_user.id
         should respond_with 200
       end
 
-
       it "should return 25 records only if no page or per page is specified" do
         get :index, auth_user_id: admin.id, auth_token: admin.authentication_token,
-            user_id: admin.id
+            customer_id: customer_user.id
         body = JSON.parse(response.body)
         expect(body["orders"].count).to eq(25)
       end
 
       it "should return 50 records max" do
         get :index, auth_user_id: admin.id, auth_token: admin.authentication_token,
-            user_id: admin.id, page: 1, per_page: 55
+            customer_id: customer_user.id, page: 1, per_page: 55
         body = JSON.parse(response.body)
         expect(body["orders"].count).to eq(50)
       end
 
       it "should return current page" do
         get :index, auth_user_id: admin.id, auth_token: admin.authentication_token,
-            user_id: admin.id, page: 2, per_page: 20
+            customer_id: customer_user.id, page: 2, per_page: 20
         body = JSON.parse(response.body)
         expect(body["meta"]["current_page"]).to eq(2)
       end
 
       it "should return page count" do
         get :index, auth_user_id: admin.id, auth_token: admin.authentication_token,
-            user_id: admin.id, page: 2, per_page: 20
+            customer_id: customer_user.id, page: 2, per_page: 20
         body = JSON.parse(response.body)
         expect(body["meta"]["page_count"]).to eq(3)
       end
 
       it "should return record count" do
         get :index, auth_user_id: admin.id, auth_token: admin.authentication_token,
-            user_id: admin.id, page: 2, per_page: 20
+            customer_id: customer_user.id, page: 2, per_page: 20
         body = JSON.parse(response.body)
         expect(body["meta"]["record_count"]).to eq(55)
       end
@@ -62,7 +66,7 @@ RSpec.describe Admin::OrdersController, type: :controller do
         @order.build_placements(product_ids_and_quantities)
         @order.save
         get :show, id: @order.id, auth_user_id: admin.id,
-            user_id: admin.id,
+            customer_id: customer_user.id,
             auth_token: admin.authentication_token
         @body = JSON.parse(response.body)
       end
@@ -72,7 +76,7 @@ RSpec.describe Admin::OrdersController, type: :controller do
       it "requires a valid order id", skip_before: true do
         get :show, id: 3245, auth_user_id: admin.id,
             auth_token: admin.authentication_token,
-            user_id: admin.id
+            customer_id: customer_user.id
         should respond_with 404
       end
 
@@ -86,7 +90,7 @@ RSpec.describe Admin::OrdersController, type: :controller do
         @order = orders.sample
         delete :destroy, id: @order.id, auth_user_id: admin.id,
                  auth_token: admin.authentication_token,
-                 user_id: customer.id
+                 customer_id: customer_user.id
       end
 
       it { should respond_with 204}
@@ -113,7 +117,7 @@ RSpec.describe Admin::OrdersController, type: :controller do
             id: @order["id"],
             auth_user_id: admin.id,
             auth_token: admin.authentication_token,
-            user_id: customer.id
+            customer_id: customer_user.id
         @body = JSON.parse(response.body)
       end
 
@@ -134,7 +138,7 @@ RSpec.describe Admin::OrdersController, type: :controller do
       it "should not be authorized to access" do
         get :show, id: @order.id, auth_user_id: customer.id,
             auth_token: customer.authentication_token,
-            user_id: customer.id
+            customer_id: customer_user.id
         expect(response.status).to eq(401)
       end
     end
@@ -145,7 +149,7 @@ RSpec.describe Admin::OrdersController, type: :controller do
             id: @order.id,
             auth_user_id: customer.id,
             auth_token: customer.authentication_token,
-            user_id: customer.id
+            customer_id: customer_user.id
         expect(response.status).to eq(401)
       end
     end
@@ -154,7 +158,7 @@ RSpec.describe Admin::OrdersController, type: :controller do
       it "should not be authorized to access" do
         delete :destroy, id: @order.id, auth_user_id: customer.id,
                auth_token: customer.authentication_token,
-               user_id: customer.id
+               customer_id: customer_user.id
         expect(response.status).to eq(401)
       end
     end
@@ -169,7 +173,7 @@ RSpec.describe Admin::OrdersController, type: :controller do
       it "should not be authorized to access" do
         get :show, id: @order.id, auth_user_id: not_logged.id,
             auth_token: nil,
-            user_id: customer.id
+            customer_id: customer_user.id
         expect(response.status).to eq(401)
       end
     end
@@ -180,7 +184,7 @@ RSpec.describe Admin::OrdersController, type: :controller do
             id: @order.id,
             auth_user_id: not_logged.id,
             auth_token: nil,
-            user_id: customer.id
+            customer_id: customer_user.id
         expect(response.status).to eq(401)
       end
     end
@@ -189,7 +193,7 @@ RSpec.describe Admin::OrdersController, type: :controller do
       it "should not be authorized to access" do
         delete :destroy, id: @order.id, auth_user_id: not_logged.id,
                auth_token: nil,
-               user_id: customer.id
+               customer_id: customer_user.id
         expect(response.status).to eq(401)
       end
     end

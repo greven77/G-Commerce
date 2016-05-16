@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160514180221) do
+ActiveRecord::Schema.define(version: 20160515181646) do
 
   create_table "addresses", force: :cascade do |t|
     t.string   "street",      limit: 255
@@ -54,16 +54,16 @@ ActiveRecord::Schema.define(version: 20160514180221) do
   add_index "customers", ["user_id"], name: "index_customers_on_user_id", using: :btree
 
   create_table "feedbacks", force: :cascade do |t|
-    t.text     "comment",    limit: 65535
-    t.integer  "rating",     limit: 4
-    t.integer  "product_id", limit: 4
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
-    t.integer  "user_id",    limit: 4
+    t.text     "comment",     limit: 65535
+    t.integer  "rating",      limit: 4
+    t.integer  "product_id",  limit: 4
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.integer  "customer_id", limit: 4
   end
 
+  add_index "feedbacks", ["customer_id"], name: "index_feedbacks_on_customer_id", using: :btree
   add_index "feedbacks", ["product_id"], name: "index_feedbacks_on_product_id", using: :btree
-  add_index "feedbacks", ["user_id"], name: "index_feedbacks_on_user_id", using: :btree
 
   create_table "order_statuses", force: :cascade do |t|
     t.string   "description", limit: 255
@@ -73,18 +73,18 @@ ActiveRecord::Schema.define(version: 20160514180221) do
   end
 
   create_table "orders", force: :cascade do |t|
-    t.integer  "user_id",         limit: 4
     t.integer  "order_status_id", limit: 4
     t.decimal  "total",                     precision: 10
     t.datetime "created_at",                               null: false
     t.datetime "updated_at",                               null: false
+    t.integer  "customer_id",     limit: 4
   end
 
+  add_index "orders", ["customer_id"], name: "index_orders_on_customer_id", using: :btree
   add_index "orders", ["order_status_id"], name: "index_orders_on_order_status_id", using: :btree
-  add_index "orders", ["user_id"], name: "index_orders_on_user_id", using: :btree
 
   create_table "payments", force: :cascade do |t|
-    t.string   "type",              limit: 255
+    t.string   "card_type",         limit: 255
     t.string   "card_number",       limit: 255
     t.string   "valid_until",       limit: 255
     t.integer  "verification_code", limit: 4
@@ -150,10 +150,10 @@ ActiveRecord::Schema.define(version: 20160514180221) do
   add_foreign_key "addresses", "countries"
   add_foreign_key "addresses", "customers"
   add_foreign_key "customers", "users"
+  add_foreign_key "feedbacks", "customers"
   add_foreign_key "feedbacks", "products"
-  add_foreign_key "feedbacks", "users"
+  add_foreign_key "orders", "customers"
   add_foreign_key "orders", "order_statuses"
-  add_foreign_key "orders", "users"
   add_foreign_key "payments", "customers"
   add_foreign_key "placements", "orders"
   add_foreign_key "placements", "products"

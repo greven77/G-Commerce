@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :order do
     total 1.5
-    association :user
+    association :customer
   end
 end

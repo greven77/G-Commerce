@@ -1,5 +1,5 @@
 class OrderSerializer < ActiveModel::Serializer
-  attributes :id, :total, :order_details, :order_status, :user_id
+  attributes :id, :total, :order_details, :order_status, :customer_id
   self.root = false
 
   def order_details

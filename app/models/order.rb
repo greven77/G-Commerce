@@ -1,5 +1,5 @@
 class Order < ActiveRecord::Base
-  belongs_to :user
+  belongs_to :customer
   belongs_to :order_status
 
   has_many :placements, dependent: :destroy
@@ -10,7 +10,7 @@ class Order < ActiveRecord::Base
 
   max_paginates_per 50
 
-  validates :user_id, presence: true
+  validates :customer_id, presence: true
 
   def set_total!
     self.total = 0

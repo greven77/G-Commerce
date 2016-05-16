@@ -3,10 +3,10 @@ require 'rails_helper'
 RSpec.describe Feedback, type: :model do
   let!(:feedback) { FactoryGirl.create(:feedback)}
   it { should belong_to :product }
-  it { should belong_to :user }
+  it { should belong_to :customer }
   it { should validate_presence_of :comment }
   it { should validate_presence_of :rating }
-  it { should validate_presence_of :user_id }
+  it { should validate_presence_of :customer_id }
   it { should validate_presence_of :product_id }
 
   describe "Rating range validation" do

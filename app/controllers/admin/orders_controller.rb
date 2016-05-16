@@ -58,7 +58,7 @@ class Admin::OrdersController < Admin::BaseController
 
   def order_params
     params.require(:order)
-      .permit(:user_id,
+      .permit(:customer_id,
               :order_status_id, #admins can change order status
               :total,
               :page,
