@@ -28,6 +28,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :countries
+
     resources :customers do
       resources :orders
     end
