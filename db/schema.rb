@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160515181646) do
+ActiveRecord::Schema.define(version: 20160518113555) do
 
   create_table "addresses", force: :cascade do |t|
     t.string   "street",      limit: 255
@@ -66,10 +66,11 @@ ActiveRecord::Schema.define(version: 20160515181646) do
   add_index "feedbacks", ["product_id"], name: "index_feedbacks_on_product_id", using: :btree
 
   create_table "order_statuses", force: :cascade do |t|
-    t.string   "description", limit: 255
-    t.datetime "created_at",                              null: false
-    t.datetime "updated_at",                              null: false
-    t.boolean  "default",                 default: false
+    t.string   "description",          limit: 255
+    t.datetime "created_at",                                       null: false
+    t.datetime "updated_at",                                       null: false
+    t.boolean  "default",                          default: false
+    t.boolean  "editable_by_customer"
   end
 
   create_table "orders", force: :cascade do |t|

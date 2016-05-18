@@ -27,6 +27,10 @@ class Order < ActiveRecord::Base
     end
   end
 
+  def editable_by_customer?
+    self.order_status.editable_by_customer
+  end
+
   private
 
   def assign_default_status
