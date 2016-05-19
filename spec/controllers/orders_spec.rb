@@ -67,9 +67,9 @@ RSpec.describe OrdersController, type: :controller do
 
         orders = JSON.parse(response.body)["orders"]
 
-        current_user_orders_only = orders
-          .reduce(true) { |acc, order| acc && (order["customer_id"] == customer_user.id) }
-        
+        current_user_orders_only = orders.
+          reduce(true) { |acc, order| acc && (order["customer_id"] == customer_user.id) }
+        expect(current_user_orders_only).to eq(true)
       end
 
       it "should not be accessible by other users" do
@@ -153,12 +153,27 @@ RSpec.describe OrdersController, type: :controller do
 
     describe "PUT #update" do
       before do
-        @order = orders.sample
-        @old_order = @order.clone.as_json
+        @order = FactoryGirl.create(:order, placements: FactoryGirl.create_list(:placement, 10))
+        @old_order = @order.clone.as_json(include: [:placements])
         @order.order_status = delivered
 
-        put :update, order: @order.as_json,
-            id: @order["id"],
+        @order_json = @order.as_json
+        new_placements = FactoryGirl.build_list(:placement, 5).as_json
+        updated_placements = @order.placements[0,5].as_json.map do |placement|
+          placement["quantity"] = (1..3).to_a.sample
+          placement
+        end
+        removed_placements =  @order.placements[5,10].as_json.map do |placement|
+          placement["_destroy"] = true
+          placement
+        end
+
+        @order_json["placements_attributes"] = updated_placements +
+                                               removed_placements +
+                                               new_placements
+
+        put :update, order: @order_json,
+            id: @order_json["id"],
             auth_user_id: customer.id,
             auth_token: customer.authentication_token,
             customer_id: customer_user.id
@@ -169,6 +184,19 @@ RSpec.describe OrdersController, type: :controller do
 
       it "should change order status " do
         expect(@old_order["order_status"]).to_not eq(@body["order_status"])
+      end
+
+      it "should have 10 products" do
+        expect(@body["order_details"].count).to eq(10)
+      end
+
+      it "should have the last 5 placements removed" do
+        old_product_ids = @old_order["placements"][6,10].
+                          map { |placement| placement["product_id"] }
+        new_product_ids = @body["order_details"].
+                          map { |order_detail| order_detail["product_id"] }
+        old_products_counter = new_product_ids - old_product_ids
+        expect(old_products_counter.count).to eq(new_product_ids.count)
       end
 
       it "should not be accessible by other users", skip_before: true do

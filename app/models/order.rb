@@ -8,9 +8,15 @@ class Order < ActiveRecord::Base
   before_create :assign_default_status
   before_validation :set_total!
 
+  attr_accessor :product_ids_and_quantities
+
   max_paginates_per 50
 
   validates :customer_id, presence: true
+
+  accepts_nested_attributes_for :placements,
+                                allow_destroy: true,
+                                reject_if: :all_blank
 
   def set_total!
     self.total = 0

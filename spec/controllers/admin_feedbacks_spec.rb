@@ -100,8 +100,8 @@ RSpec.describe Admin::FeedbacksController, type: :controller do
              auth_token: admin.authentication_token,
              product_id: product.id
         @body = JSON.parse(response.body)
-        puts "body #{@body}"
       end
+
       it { should respond_with 201}
 
       it "should retrieve server side generated id" do
