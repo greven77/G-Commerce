@@ -20,22 +20,7 @@ class Admin::OrdersController < Admin::BaseController
     end
   end
 
-#admins can't create orders
-#  def create
-#    order = @current_user.orders.build
-#    order.build_placements(order_params[:product_ids_and_quantities])
-
-#    if @order.save
-#      render status: :created,
-#             json: @order
-#    else
-#      render status: :unprocessable_entity,
-#             json: @order.errors.as_json
-#   end
-# end
-
   def update
-#    @order.build_placements(order_params[:product_ids_and_quantities])
     if @order.update(order_params)
       render status: :ok,
              json: @order
@@ -63,7 +48,9 @@ class Admin::OrdersController < Admin::BaseController
               :total,
               :page,
               :per_page,
-              product_ids_and_quantities: [])
+              product_ids_and_quantities: [],
+              placements_attributes: [:id, :order_id, :product_id, :quantity,
+                                      :_destroy])
   end
 
   def set_order

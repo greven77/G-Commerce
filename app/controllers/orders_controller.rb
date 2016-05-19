@@ -22,8 +22,7 @@ class OrdersController < ApplicationController
   end
 
   def create
-    order = @current_user.orders.build
-    order.build_placements(order_params[:product_ids_and_quantities])
+    @order = @current_user.customer.orders.build(order_params)
 
     if @order.save
       render status: :created,

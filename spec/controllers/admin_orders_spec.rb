@@ -108,13 +108,27 @@ RSpec.describe Admin::OrdersController, type: :controller do
       let!(:delivered) { FactoryGirl.create(:order_status, description: "Delivered") }
 
       before do
-        @order = orders.sample
-        @old_order = @order.clone.as_json
+        @order = FactoryGirl.create(:order, placements: FactoryGirl.create_list(:placement, 10))
+        @old_order = @order.clone.as_json(include: [:placements])
         @order.order_status = delivered
-        @order = @order.as_json
 
-        put :update, order: @order,
-            id: @order["id"],
+        @order_json = @order.as_json
+        new_placements = FactoryGirl.build_list(:placement, 5).as_json
+        updated_placements = @order.placements[0,5].as_json.map do |placement|
+          placement["quantity"] = (1..3).to_a.sample
+          placement
+        end
+        removed_placements =  @order.placements[5,10].as_json.map do |placement|
+          placement["_destroy"] = true
+          placement
+        end
+
+        @order_json["placements_attributes"] = updated_placements +
+                                               removed_placements +
+                                               new_placements
+
+        put :update, order: @order_json,
+            id: @order_json["id"],
             auth_user_id: admin.id,
             auth_token: admin.authentication_token,
             customer_id: customer_user.id
@@ -125,6 +139,19 @@ RSpec.describe Admin::OrdersController, type: :controller do
 
       it "should change order status " do
         expect(@old_order["order_status"]).to_not eq(@body["order_status"])
+      end
+
+      it "should have 10 products" do
+        expect(@body["order_details"].count).to eq(10)
+      end
+
+      it "should have the last 5 placements removed" do
+        old_product_ids = @old_order["placements"][6,10].
+                          map { |placement| placement["product_id"] }
+        new_product_ids = @body["order_details"].
+                          map { |order_detail| order_detail["product_id"] }
+        old_products_counter = new_product_ids - old_product_ids
+        expect(old_products_counter.count).to eq(new_product_ids.count)
       end
     end
   end
