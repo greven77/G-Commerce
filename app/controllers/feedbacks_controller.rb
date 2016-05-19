@@ -1,13 +1,16 @@
 class FeedbacksController < ApplicationController
+  include Pagination
   before_filter :authenticate_user_from_token!, except: [:index]
   before_action :set_feedback, except: [:index, :create]
   before_action :ensure_deletion_by_author_or_admin, only: [:destroy]
 
   def index
-    @feedbacks = Feedback.where(product_id: params[:product_id])
+    feedbacks = Feedback.where(product_id: params[:product_id])
+    paginated_feedbacks = paginate(feedbacks, params)
+    @feedbacks = paginated_feedbacks[:collection]
 
     if @feedbacks
-      render json: @feedbacks
+      render json: @feedbacks, meta: paginated_feedbacks[:meta]
     else
       render status: :not_found,
         json: {
@@ -33,10 +36,6 @@ class FeedbacksController < ApplicationController
     head 204
   end
 
-  def show
-    render status: :ok, json: @feedback if @feedback
-  end
-
   private
 
   def feedback_params
@@ -55,7 +54,16 @@ class FeedbacksController < ApplicationController
   end
 
   def ensure_deletion_by_author_or_admin
-    user = User.find(params[:user_id])
-    permission_denied unless params[:user_id] == @feedback.user_id || user.admin?
+    user = User.find(params[:auth_user_id])
+    permission_denied unless params[:auth_user_id].to_i == @feedback.customer.user.id || user.admin?
   end
+
+  def ensure_own_user
+    permission_denied unless params[:auth_token] == @current_user.authentication_token
+  end
+
+  def editing_allowed?
+    permission_denied unless @order.editable_by_customer?
+  end
+
 end

@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :feedback do
-    comment Faker::Lorem.sentences
+    comment { Faker::Lorem.sentence(3) }
     rating (0..5).to_a.sample
     association :product
     association :customer
