@@ -21,6 +21,13 @@ Rails.application.routes.draw do
 
   resources :countries, :only => [:index]
 
+  match 'cart' => 'carts#show', :via => :get
+  match 'cart' => 'carts#destroy', :via => :delete
+  match 'cart/increase/:product_id' => 'carts#increase_product_quantity', :via => :put
+  match 'cart/decrease/:product_id' => 'carts#decrease_product_quantity', :via => :put
+  match 'cart/set_quantity/:product_id' => 'carts#increase_product_quantity', :via => :put
+  match 'cart/remove/:product_id' => 'carts#remove_product', :via => :put
+
   namespace :admin do
     resources :order_statuses do
       member do
