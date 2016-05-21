@@ -7,6 +7,8 @@ class Category < ActiveRecord::Base
   friendly_id :name, use: :slugged
   attr_accessor :subcategories
 
+  searchkick match: :word_start, searchable: [:name]
+
   def subcategories
     descendants.map { |category| CategorySerializer.new(category) }
   end

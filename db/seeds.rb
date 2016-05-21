@@ -261,3 +261,8 @@ COUNTRIES = [
 ]
 
 COUNTRIES.each { |name| Country.create(name: name) }
+
+#Category.reindex
+#Product.reindex
+#Order.reindex
+#Customer.reindex

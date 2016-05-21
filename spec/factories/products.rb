@@ -4,6 +4,7 @@ FactoryGirl.define do
     product_code { Faker::Code.ean }
     description "MyString"
     price { Faker::Commerce.price }
+    association :category
     trait :with_image do
       image { Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec', 'fixtures', 'files',
                                                      'image1.jpg'))}

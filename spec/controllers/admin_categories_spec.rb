@@ -6,6 +6,48 @@ RSpec.describe Admin::CategoriesController, type: :controller do
   let!(:not_logged) { FactoryGirl.create(:user, :tokenless)}
 
   context "admin users" do
+    describe "GET #index" do
+      before do
+        @categories = FactoryGirl.create_list(:category, 15)
+        @category = @categories.sample
+        @categories.each { |category| category.reindex }
+        Category.searchkick_index.refresh
+      end
+
+      it "should return a 200" do
+        get :index, auth_user_id: admin.id,
+            auth_token: admin.authentication_token
+        should respond_with 200
+      end
+
+      it "should be searchable" do
+        search_term = @category.name[0..2]
+        get :index, auth_user_id: admin.id,
+            auth_token: admin.authentication_token,
+            query: search_term
+        body = JSON.parse(response.body)["categories"]
+        expect(body).not_to be_empty
+      end
+    end
+
+    describe "GET #autocomplete" do
+      before do
+        @categories = FactoryGirl.create_list(:category, 15)
+        @category = @categories.sample
+        @categories.each { |category| category.reindex }
+        Category.searchkick_index.refresh
+      end
+
+      it "should return results" do
+        search_term = @category.name[0..2]
+        get :autocomplete, query: search_term,
+            auth_token: admin.authentication_token,
+            auth_user_id: admin.id
+        body = JSON.parse(response.body)["categories"]
+        expect(body).not_to be_empty
+      end
+    end
+
     describe "GET #show" do
       before(:each) do
         @parent_category = FactoryGirl.create(:category)

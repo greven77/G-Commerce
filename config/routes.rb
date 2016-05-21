@@ -13,6 +13,12 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :products, only: [:index] do
+    collection do
+      get :autocomplete
+    end
+  end#used for search
+
   resources :users, :only => [:show, :create, :update]
 
   resources :customers, :only => [:show, :create, :update] do
@@ -43,10 +49,16 @@ Rails.application.routes.draw do
 
     resources :users
 
-    resources :products, only: [:create, :update] do
+    resources :products, only: [:index, :create, :update] do
+      collection do
+        get :autocomplete
+      end
       resources :feedbacks
     end
     resources :categories do
+      collection do
+        get :autocomplete
+      end
       resources :products, except: [:create, :update] do
         resources :feedbacks
       end

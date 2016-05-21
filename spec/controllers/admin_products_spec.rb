@@ -16,6 +16,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
         @products = FactoryGirl.create_list(:product, 55, category_id: category.id)
         @product = @products.sample
         @product_category_id = @product.category.id
+        @products.each { |product| product.reindex }
+        Product.searchkick_index.refresh
       end
 
       it "should return 25 records only if no page or per page is specified" do
@@ -51,6 +53,34 @@ RSpec.describe Admin::ProductsController, type: :controller do
             category_id: @product_category_id, page: 2, per_page: 20
         body = JSON.parse(response.body)
         expect(body["meta"]["record_count"]).to eq(55)
+      end
+
+      it "should be searchable" do
+        search_term = @product.name[0..2]
+        get :index, query: search_term, auth_token: admin.authentication_token,
+            auth_user_id: admin.id
+        body = JSON.parse(response.body)["products"]
+        expect(body).not_to be_empty
+      end
+    end
+
+    describe "GET #autocomplete" do
+      before do
+        category = FactoryGirl.create(:category)
+        @products = FactoryGirl.create_list(:product, 20, category_id: category.id)
+        @product = @products.sample
+        @product_category_id = @product.category.id
+        @products.each { |product| product.reindex }
+        Product.searchkick_index.refresh
+      end
+
+      it "should return results" do
+        search_term = @product.name[0..2]
+        get :autocomplete, query: search_term,
+            auth_token: admin.authentication_token,
+            auth_user_id: admin.id
+        body = JSON.parse(response.body)["products"]
+        expect(body).not_to be_empty
       end
     end
 

@@ -1,9 +1,13 @@
 class Admin::CategoriesController < Admin::BaseController
   before_filter :authenticate_user_from_token!
-  before_action :set_category, except: [:index, :create]
+  before_action :set_category, except: [:index, :create, :autocomplete]
 
   def index
-    @categories = Category.all
+    if params[:query].present?
+      @categories = Category.search(params[:query])
+    else
+      @categories = Category.all
+    end
 
     if @categories
       render json: @categories
@@ -47,6 +51,11 @@ class Admin::CategoriesController < Admin::BaseController
 
   def show
     render status: :ok, json: @category if @category
+  end
+
+  def autocomplete
+    @categories = Category.search(params[:query]).map(&:name)
+    render json: @categories, status: :ok
   end
 
   private

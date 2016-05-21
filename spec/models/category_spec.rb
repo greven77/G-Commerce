@@ -12,6 +12,13 @@ RSpec.describe Category, type: :model do
   it { should have_many :products }
   it { should validate_presence_of :name }
 
+  it "searches" do
+    Category.reindex
+    Category.searchkick_index.refresh
+    search_term = category.name[0..2].downcase
+    expect(Category.search(search_term)).not_to be_empty
+  end
+
   describe "category" do
     it "should have children" do
       expect(category.has_children?).to be true

@@ -2,15 +2,25 @@ class Admin::ProductsController < Admin::BaseController
   include Pagination
 
   before_filter :authenticate_user_from_token!
-  before_action :set_product, except: [:index, :create]
+  before_action :set_product, except: [:index, :create, :autocomplete]
 
   def index
-    products = Product.by_category(params[:category_id])
-    paginated_products = paginate(products, params)
-    @products = paginated_products[:collection]
+    if params[:query].present?
+      @products = Product.search(params[:query], {
+        page: params[:page], per_page: params[:per_page],
+        fields: ["name^10", "category^5", "description"],
+        misspellings: {below: 5}
+      })
+      meta = {}
+    else
+      products = Product.by_category(params[:category_id])
+      paginated_products = paginate(products, params)
+      @products = paginated_products[:collection]
+      meta = paginated_products[:meta]
+    end
 
     if @products
-      render json: {products: @products, meta: paginated_products[:meta]}
+      render json: {products: @products, meta: meta}
     else
       render status: :not_found,
         json: {
@@ -48,6 +58,16 @@ class Admin::ProductsController < Admin::BaseController
 
   def show
     render status: :ok, json: @product if @product
+  end
+
+  def autocomplete
+    products = Product.search(params[:query], {
+      fields: ["name^10", "category^5", "description"],
+      limit: 10,
+      misspellings: {below: 5},
+      load: false
+    }).map(&:name)
+    render json: products, status: :ok
   end
 
   private

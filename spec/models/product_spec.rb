@@ -16,4 +16,27 @@ RSpec.describe Product, type: :model do
 
   it { should have_many(:placements) }
   it { should have_many(:orders).through(:placements) }
+
+  context "search" do
+    before(:each) do
+      Product.reindex
+      Product.searchkick_index.refresh
+    end
+
+    after(:each) do
+      expect(Product.search(@search_term)).not_to be_empty
+    end
+
+    it "searches by name" do
+      @search_term = product.name[0..2].downcase
+    end
+
+    it "searches by description" do
+      @search_term = product.description[0..2].downcase
+    end
+
+    it "searches by category" do
+      @search_term = product.category.name[0..2].downcase
+    end
+  end
 end
