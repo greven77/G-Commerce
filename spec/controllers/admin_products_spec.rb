@@ -70,7 +70,8 @@ RSpec.describe Admin::ProductsController, type: :controller do
         @products = FactoryGirl.create_list(:product, 20, category_id: category.id)
         @product = @products.sample
         @product_category_id = @product.category.id
-        @products.each { |product| product.reindex }
+        #@products.each { |product| product.reindex }
+        Product.reindex
         Product.searchkick_index.refresh
       end
 

@@ -11,7 +11,8 @@ RSpec.describe ProductsController, type: :controller do
       @products = FactoryGirl.create_list(:product, 55, category_id: category.id)
       @product = @products.sample
       @product_category_id = @product.category.id
-      @products.each { |product| product.reindex }
+      #@products.each { |product| product.reindex }
+      Product.reindex
       Product.searchkick_index.refresh
     end
 
@@ -67,7 +68,6 @@ RSpec.describe ProductsController, type: :controller do
       search_term = @product.name[0..2]
       get :autocomplete, query: search_term
       body = JSON.parse(response.body)["products"]
-      puts JSON.parse(response.body)
       expect(body).not_to be_empty
     end
   end

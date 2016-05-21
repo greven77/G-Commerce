@@ -12,6 +12,9 @@ RSpec.describe Admin::OrdersController, type: :controller do
       before do
         customer_user
         orders
+        @order = orders.sample
+        Order.reindex
+        Order.searchkick_index.refresh
       end
 
       it "should respond with OK status" do
@@ -53,6 +56,35 @@ RSpec.describe Admin::OrdersController, type: :controller do
             customer_id: customer_user.id, page: 2, per_page: 20
         body = JSON.parse(response.body)
         expect(body["meta"]["record_count"]).to eq(55)
+      end
+
+      it "should be searchable" do
+        search_term = @order.customer.name[0..2]
+        
+        get :index, query: search_term,
+            auth_token: admin.authentication_token,
+            auth_user_id: admin.id
+        body = JSON.parse(response.body)["orders"]
+        expect(body).not_to be_empty
+      end
+    end
+
+    describe "GET #autocomplete" do
+      before do
+        customer_user
+        orders
+        Order.reindex
+        Order.searchkick_index.refresh
+        @order = orders.sample
+      end
+
+      it "should return results" do
+        search_term = @order.customer.name[0..2]
+        get :autocomplete, query: search_term,
+            auth_token: admin.authentication_token,
+            auth_user_id: admin.id
+        body = JSON.parse(response.body)["orders"]
+        expect(body).not_to be_empty
       end
     end
 

@@ -57,6 +57,7 @@ RSpec.describe Admin::CustomersController, type: :controller do
       it { should respond_with 200}
 
       it "requires a valid product id", skip_before: true do
+        invalid_id = Customer.pluck(:id).max + (0..50).to_a.sample
         get :show, id: 3245, auth_user_id: admin_user.id,
             auth_token: admin_user.authentication_token
         should respond_with 404

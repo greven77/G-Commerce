@@ -50,6 +50,12 @@ Rails.application.routes.draw do
       resources :orders
     end
 
+    resources :orders, only: [:index] do
+      collection do
+        get :autocomplete
+      end
+    end#used for search
+
     resources :users
 
     resources :products, only: [:index, :create, :update] do

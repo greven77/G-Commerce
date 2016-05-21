@@ -93,3 +93,4 @@ class Cart
     @products = Cart.get(@user_id)
   end
 end
+end

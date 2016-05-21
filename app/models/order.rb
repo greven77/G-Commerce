@@ -18,6 +18,30 @@ class Order < ActiveRecord::Base
                                 allow_destroy: true,
                                 reject_if: :all_blank
 
+  searchkick match: :word_start, searchable: [:customer, :order_status]
+  after_commit :reindex_customer
+  after_commit :reindex_order_status
+
+  def reindex_customer
+    customer.reindex
+  end
+
+  def reindex_order_status
+    order_status.reindex
+  end
+
+  def search_data
+    {
+      customer: customer.name,
+      order_status: order_status.description,
+      created_at: created_at
+    }
+  end
+
+  def autocomplete_item
+    "#{customer.name}:#{created_at.strftime("%d-%m-%Y")}:#{id}"
+  end
+
   def set_total!
     self.total = 0
     placements.each do |placement|

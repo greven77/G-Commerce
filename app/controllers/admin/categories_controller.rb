@@ -20,9 +20,7 @@ class Admin::CategoriesController < Admin::BaseController
   end
 
   def create
-    #puts category_params
     @category = Category.new(category_params)
-    # implement subcategories addition case params[:subcategories]
     if @category.save
       subcategories = category_params["subcategories"]
       @category.add_subcategories(subcategories) if subcategories

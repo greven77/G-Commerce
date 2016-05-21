@@ -2,16 +2,25 @@ class Admin::OrdersController < Admin::BaseController
   include Pagination
 
   before_filter :authenticate_user_from_token!
-  before_action :set_order, except: [:index, :create]
+  before_action :set_order, except: [:index, :create, :autocomplete]
 
   def index
-    #orders = @current_user.orders #uncomment to use in client api
-    orders = Order #comment it in client api
-    paginated_orders = paginate(orders, params)
-    @orders = paginated_orders[:collection]
+    if params[:query].present?
+      @orders = Order.search(params[:query],{
+        page: params[:page], per_page: params[:per_page],
+        fields: [:customer, :order_status], misspellings: {below: 5},
+        order: {_score: :desc, created_at: :desc}
+      })
+      meta = {}
+    else
+      orders = Order
+      paginated_orders = paginate(orders, params)
+      @orders = paginated_orders[:collection]
+      meta = paginated_orders[:meta]
+    end
 
     if @orders
-      render json: {orders: @orders, meta: paginated_orders[:meta]}
+      render json: {orders: @orders, meta: meta}
     else
       render status: :not_found,
         json: {
@@ -37,6 +46,17 @@ class Admin::OrdersController < Admin::BaseController
 
   def show
     render status: :ok, json: @order if @order
+  end
+
+  def autocomplete
+    orders = Order.search(params[:query], {
+      fields: ["customer^2", "order_status"],
+      limit: 10,
+      misspellings: {below: 5},
+      load: false,
+      order: {_score: :desc, created_at: :desc}
+    }).map { |order| order.autocomplete_item }
+    render json: orders, status: :ok
   end
 
   private

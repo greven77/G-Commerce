@@ -30,7 +30,6 @@ class Admin::ProductsController < Admin::BaseController
   end
 
   def create
-    #@product = Product.new(product_params)
     @product = Product.new(convert_data_uri_to_upload(product_params))
     if @product.save
       render status: :created,

@@ -4,7 +4,6 @@ class Customer < ActiveRecord::Base
   has_many :feedbacks, dependent: :destroy
   has_many :orders, dependent: :destroy
 
-
   has_one :billing_address, :class_name => "Address", dependent: :destroy
   has_one :shipping_address, :class_name => "Address", dependent: :destroy
 
@@ -16,4 +15,6 @@ class Customer < ActiveRecord::Base
 
   accepts_nested_attributes_for :feedbacks, :orders, :billing_address,
                                 :shipping_address, :payment_method, allow_destroy: true
+
+  searchkick match: :word_start, searchable: [:name]
 end
