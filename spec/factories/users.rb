@@ -5,6 +5,7 @@ FactoryGirl.define do
     email { Faker::Internet.email }
     password "password"
     password_confirmation "password"
+    association :role, :name => "customer"
 
     trait :customer do
       email {Faker::Internet.email}

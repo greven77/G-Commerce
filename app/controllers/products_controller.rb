@@ -35,7 +35,6 @@ class ProductsController < ApplicationController
       misspellings: {below: 5},
       load: false
                               }).map(&:name)
-    puts "Autocomplete products: #{products}"
     render json: products, status: :ok
   end
 

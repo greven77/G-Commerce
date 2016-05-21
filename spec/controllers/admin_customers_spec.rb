@@ -6,11 +6,16 @@ RSpec.describe Admin::CustomersController, type: :controller do
   let!(:customer_user) { FactoryGirl.create(:user, :customer) }
   let!(:not_logged_user) { FactoryGirl.create(:user, :tokenless) }
 # let!(:customer) { FactoryGirl.create(:customer, user: customer_user) }
-  let!(:customers) { FactoryGirl.create_list(:customer, 55,
+  let(:customers) { FactoryGirl.create_list(:customer, 55,
                                              user: customer_user )}
 
   context "admin users" do
     describe "GET #index" do
+      before do
+        @customer = customers.sample
+        Customer.reindex
+        Customer.searchkick_index.refresh
+      end
 
       it "should return 25 records only if no page or per page is specified" do
         get :index, auth_user_id: admin_user.id, auth_token: admin_user.authentication_token
@@ -45,6 +50,45 @@ RSpec.describe Admin::CustomersController, type: :controller do
         body = JSON.parse(response.body)
         expect(body["meta"]["record_count"]).to eq(55)
       end
+
+      it "should be searchable" do
+        search_term = @customer.name[0..2]
+
+        get :index, query: search_term,
+            auth_token: admin_user.authentication_token,
+            auth_user_id: admin_user.id
+        body = JSON.parse(response.body)["customers"]
+        expect(body).not_to be_empty
+      end
+    end
+
+    describe "GET #autocomplete" do
+      before do
+        @customer = customers.sample
+        Customer.reindex
+        Customer.searchkick_index.refresh
+      end
+
+      before(:each) do
+        search_term = @customer.name[0..2]
+        get :autocomplete, query: search_term,
+            auth_token: admin_user.authentication_token,
+            auth_user_id: admin_user.id
+        @body = JSON.parse(response.body)["customers"]
+      end
+
+      it { should respond_with 200 }
+
+      it "should return results" do
+        expect(@body).not_to be_empty
+      end
+
+      it "should return results with id and text as properties" do
+        valid_autocomplete = @body.reduce(true) do |acc, customer|
+          customer["id"].present? && customer["text"].present? && acc
+        end
+        expect(valid_autocomplete).to eq(true)
+      end
     end
 
     describe "GET #show" do
@@ -57,8 +101,8 @@ RSpec.describe Admin::CustomersController, type: :controller do
       it { should respond_with 200}
 
       it "requires a valid product id", skip_before: true do
-        invalid_id = Customer.pluck(:id).max + (0..50).to_a.sample
-        get :show, id: 3245, auth_user_id: admin_user.id,
+        invalid_id = Customer.pluck(:id).max * 10
+        get :show, id: invalid_id, auth_user_id: admin_user.id,
             auth_token: admin_user.authentication_token
         should respond_with 404
       end

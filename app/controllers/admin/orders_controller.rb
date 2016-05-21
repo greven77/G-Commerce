@@ -52,10 +52,11 @@ class Admin::OrdersController < Admin::BaseController
     orders = Order.search(params[:query], {
       fields: ["customer^2", "order_status"],
       limit: 10,
-      misspellings: {below: 5},
+      misspellings: { below: 5 },
       load: false,
-      order: {_score: :desc, created_at: :desc}
-    }).map { |order| order.autocomplete_item }
+      order: { _score: :desc, created_at: :desc }
+    }).map { |order| { id: order.customer,
+                       text: order.autocomplete_item } }
     render json: orders, status: :ok
   end
 

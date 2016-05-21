@@ -12,6 +12,20 @@ class User < ActiveRecord::Base
 
   has_one :customer
 
+  searchkick match: :word_start, searchable: [:email, :role_name]
+  after_commit :reindex_role
+
+  def reindex_role
+    role.reindex if role
+  end
+
+  def search_data
+    {
+      email: email,
+      role_name: role ? role.name : 'no role assigned'
+    }
+  end
+
   def admin?
     user_role == 'admin'
   end

@@ -2,14 +2,24 @@ class Admin::CustomersController < Admin::BaseController
   include Pagination
 
   before_filter :authenticate_user_from_token!
-  before_action :set_customer, except: [:index, :create]
+  before_action :set_customer, except: [:index, :create, :autocomplete]
 
   def index
-    paginated_customers = paginate(Customer, params)
-    @customers = paginated_customers[:collection]
+    if params[:query].present?
+      @customers = Customer.search(params[:query], {
+        page: params[:page], per_page: params[:per_page],
+        fields: [:name, :email], misspellings: {below: 5},
+        order: {_score: :desc, created_at: :desc}
+      })
+      meta = {}
+    else
+      paginated_customers = paginate(Customer, params)
+      meta = paginated_customers[:meta]
+      @customers = paginated_customers[:collection]
+    end
 
     if @customers
-      render json: @customers, meta: paginated_customers[:meta]
+      render json: @customers, meta: meta
     else
       render status: :not_found,
         json: {
@@ -47,6 +57,18 @@ class Admin::CustomersController < Admin::BaseController
 
   def show
     render status: :ok, json: @customer if @customer
+  end
+
+  def autocomplete
+    customers = Customer.search(params[:query], {
+      fields: ["name", "email^2"],
+      limit: 10,
+      misspellings: {below: 3},
+      load: false,
+      order: {_score: :desc, created_at: :desc}
+    }).map { |customer| { id: customer.email,
+                          text: customer.autocomplete_item } }
+    render json: customers, status: :ok
   end
 
   private

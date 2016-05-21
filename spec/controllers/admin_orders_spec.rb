@@ -60,7 +60,7 @@ RSpec.describe Admin::OrdersController, type: :controller do
 
       it "should be searchable" do
         search_term = @order.customer.name[0..2]
-        
+
         get :index, query: search_term,
             auth_token: admin.authentication_token,
             auth_user_id: admin.id
@@ -78,13 +78,25 @@ RSpec.describe Admin::OrdersController, type: :controller do
         @order = orders.sample
       end
 
-      it "should return results" do
+      before(:each) do
         search_term = @order.customer.name[0..2]
         get :autocomplete, query: search_term,
             auth_token: admin.authentication_token,
             auth_user_id: admin.id
-        body = JSON.parse(response.body)["orders"]
-        expect(body).not_to be_empty
+        @body = JSON.parse(response.body)["orders"]
+      end
+
+      it { should respond_with 200 }
+
+      it "should return results" do
+        expect(@body).not_to be_empty
+      end
+
+      it "should return results with id and text as properties" do
+        valid_autocomplete = @body.reduce(true) do |acc, customer|
+          customer["id"].present? && customer["text"].present? & acc
+        end
+        expect(valid_autocomplete).to eq(true)
       end
     end
 

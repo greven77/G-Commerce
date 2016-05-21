@@ -16,5 +16,23 @@ class Customer < ActiveRecord::Base
   accepts_nested_attributes_for :feedbacks, :orders, :billing_address,
                                 :shipping_address, :payment_method, allow_destroy: true
 
-  searchkick match: :word_start, searchable: [:name]
+  searchkick match: :word_start, searchable: [:name, :email]
+  after_commit :reindex_user
+
+  def reindex_user
+    user.reindex
+  end
+
+  def search_data
+    {
+      name: name,
+      email: user.email,
+      created_at: created_at,
+      autocomplete_item: autocomplete_item
+    }
+  end
+
+  def autocomplete_item
+    "#{self.name}, #{self.user.email}"
+  end
 end

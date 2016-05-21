@@ -64,10 +64,18 @@ Rails.application.routes.draw do
       end
       resources :feedbacks
     end
+
+    resources :customers, only: [:index] do
+      collection do
+        get :autocomplete
+      end
+    end
+
     resources :categories do
       collection do
         get :autocomplete
       end
+
       resources :products, except: [:create, :update] do
         resources :feedbacks
       end

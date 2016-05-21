@@ -34,7 +34,8 @@ class Order < ActiveRecord::Base
     {
       customer: customer.name,
       order_status: order_status.description,
-      created_at: created_at
+      created_at: created_at,
+      autocomplete_item: autocomplete_item
     }
   end
 

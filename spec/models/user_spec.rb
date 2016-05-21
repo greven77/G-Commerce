@@ -8,6 +8,8 @@ RSpec.describe User, :type => :model do
     before(:each) do
       @user = User.new(email: "user@example.com", password: "password",
                        password_confirmation: "password")
+      User.reindex
+      User.searchkick_index.refresh
     end
 
     it "triggers default role assignment" do
