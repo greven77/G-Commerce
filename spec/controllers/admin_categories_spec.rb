@@ -12,12 +12,15 @@ RSpec.describe Admin::CategoriesController, type: :controller do
         @category = @categories.sample
         @categories.each { |category| category.reindex }
         Category.searchkick_index.refresh
-      end
-
-      it "should return a 200" do
         get :index, auth_user_id: admin.id,
             auth_token: admin.authentication_token
-        should respond_with 200
+      end
+
+      it { should respond_with 200}
+
+      it "should contain 15 categories" do
+        body = JSON.parse(response.body)
+        expect(body["categories"].count).to eq(15)
       end
 
       it "should be searchable" do

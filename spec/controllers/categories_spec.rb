@@ -5,10 +5,13 @@ RSpec.describe CategoriesController, type: :controller do
   let!(:customer) { FactoryGirl.create(:user, :customer) }
   let!(:not_logged) { FactoryGirl.create(:user, :tokenless)}
 
-  context "admin users" do
+#  context "customer users" do
     describe "GET #index" do
       before do
         @categories = FactoryGirl.create_list(:category, 10)
+        @category = @categories.sample
+        @categories.each { |category| category.reindex }
+        Category.searchkick_index.refresh
         get :index
       end
 
@@ -18,7 +21,31 @@ RSpec.describe CategoriesController, type: :controller do
         body = JSON.parse(response.body)
         expect(body["categories"].count).to eq(10)
       end
+
+      it "should be searchable" do
+        search_term = @category.name[0..2]
+        get :index, query: search_term
+        body = JSON.parse(response.body)["categories"]
+        expect(body).not_to be_empty
+      end
     end
+
+    describe "GET #autocomplete" do
+      before do
+        @categories = FactoryGirl.create_list(:category, 15)
+        @category = @categories.sample
+        @categories.each { |category| category.reindex }
+        Category.searchkick_index.refresh
+      end
+
+      it "should return results" do
+        search_term = @category.name[0..2]
+        get :autocomplete, query: search_term
+        body = JSON.parse(response.body)["categories"]
+        expect(body).not_to be_empty
+      end
+    end
+
     describe "GET #show" do
       before do
         @parent_category = FactoryGirl.create(:category)
@@ -30,8 +57,7 @@ RSpec.describe CategoriesController, type: :controller do
       it { should respond_with 200}
 
       it "requires a valid category id", skip_before: true do
-        get :show, id: 3245, auth_user_id: admin.id,
-            auth_token: admin.authentication_token
+        get :show, id: 3245
         should respond_with 404
       end
 
@@ -69,4 +95,4 @@ RSpec.describe CategoriesController, type: :controller do
       end
     end
   end
-end
+#end

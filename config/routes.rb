@@ -8,6 +8,9 @@ Rails.application.routes.draw do
   get 'users', :to => 'users#index'
 
   resources :categories, only: [:index, :show] do
+    collection do
+      get :autocomplete
+    end
     resources :products, only: [:index, :show] do
       resources :feedbacks, except: [:update, :show]
     end
