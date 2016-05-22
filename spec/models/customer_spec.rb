@@ -17,4 +17,24 @@ RSpec.describe Customer, type: :model do
   it { should have_one(:shipping_address) }
   it { should have_many(:orders) }
   it { should have_many(:feedbacks) }
+
+  context "search" do
+    before do
+      customers = FactoryGirl.create_list(:customer, 10,
+                                          user: FactoryGirl.create(:user, :customer))
+      @customer = customers.sample
+      Customer.reindex
+      Customer.searchkick_index.refresh
+    end
+
+    it "by name" do
+      search_term = @customer.name[0..2]
+      expect(Customer.search(search_term)).not_to be_empty
+    end
+
+    it "by email" do
+      search_term = @customer.user.email[0..2]
+      expect(Customer.search(search_term)).not_to be_empty
+    end
+  end
 end
