@@ -56,7 +56,11 @@ Rails.application.routes.draw do
       end
     end#used for search
 
-    resources :users
+    resources :users do
+      collection do
+        get 'autocomplete'
+      end
+    end
 
     resources :products, only: [:index, :create, :update] do
       collection do

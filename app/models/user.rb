@@ -16,14 +16,20 @@ class User < ActiveRecord::Base
   after_commit :reindex_role
 
   def reindex_role
-    role.reindex if role
+    role.reindex_async if role
   end
 
   def search_data
     {
       email: email,
-      role_name: role ? role.name : 'no role assigned'
+      role_name: user_role,
+      created_at: created_at,
+      autocomplete_item: autocomplete_item
     }
+  end
+
+  def autocomplete_item
+    "#{email} (#{user_role})"
   end
 
   def admin?
