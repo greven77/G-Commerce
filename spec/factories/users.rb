@@ -3,8 +3,8 @@
 FactoryGirl.define do
   factory :user do
     email { Faker::Internet.email }
-    password "password"
-    password_confirmation "password"
+    password "psw666arg"
+    password_confirmation "psw666arg"
     association :role, :name => "customer"
 
     trait :customer do

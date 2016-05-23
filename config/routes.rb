@@ -22,7 +22,11 @@ Rails.application.routes.draw do
     end
   end#used for search
 
-  resources :users, :only => [:show, :create, :update]
+  resources :users do
+    collection do
+      get :autocomplete
+    end
+  end
 
   resources :customers, :only => [:show, :create, :update] do
     resources :orders

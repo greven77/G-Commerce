@@ -12,6 +12,8 @@ class User < ActiveRecord::Base
 
   has_one :customer
 
+  max_paginates_per 50
+
   searchkick match: :word_start, searchable: [:email, :role_name]
   after_commit :reindex_role
 

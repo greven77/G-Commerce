@@ -86,11 +86,12 @@ RSpec.describe Admin::ProductsController, type: :controller do
     end
 
     describe "GET #show" do
-      before(:each)do
+      before do
         @product = FactoryGirl.create(:product_with_feedback)
         get :show, id: @product.id, auth_user_id: admin.id,
             category_id: category.id,
             auth_token: admin.authentication_token
+        @body = JSON.parse(response.body)
       end
 
       it { should respond_with 200}
@@ -103,7 +104,7 @@ RSpec.describe Admin::ProductsController, type: :controller do
       end
 
       it "should contain 5 feedbacks" do
-        expect(@product.feedbacks.count).to eq(5)
+        expect(@body["feedbacks"].count).to eq(5)
       end
     end
 
@@ -155,7 +156,7 @@ RSpec.describe Admin::ProductsController, type: :controller do
     end
 
       describe "DELETE #destroy" do
-        before(:each) do
+        before do
           @product = FactoryGirl.create(:product_with_feedback)
           delete :destroy, id: @product.id, auth_user_id: admin.id,
                  auth_token: admin.authentication_token,

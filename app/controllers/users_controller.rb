@@ -1,6 +1,8 @@
 class UsersController < ApplicationController
   include Pagination
-  before_filter :authenticate_user_from_token!, :only => [:index]
+  before_filter :authenticate_user_from_token!
+  before_filter :check_admin, except: [:index]
+  before_filter :set_user, except: [:index, :create, :autocomplete]
 
   def index
     return permission_denied unless (params[:id].to_s == @current_user.id.to_s) ||
@@ -45,5 +47,56 @@ class UsersController < ApplicationController
     }).map { |user| { id: user.email,
                       text: user.autocomplete_item } }
     render json: users, status: :ok
+  end
+
+  def show
+    render status: :ok, json: @user if @user
+  end
+
+  def create
+    @user = User.new(user_params)
+    if @user.save
+      render status: :created,
+        json: @user
+    else
+      render status: :unprocessable_entity,
+        json: @user.errors.as_json
+    end
+  end
+
+  def update
+    if @user.update(user_params)
+      render status: :ok,
+        json: @user
+    else
+      render status: :unprocessable_entity,
+      json: @user.errors.as_json
+    end
+  end
+
+  def destroy
+    @user.destroy
+    head 204
+  end
+
+  private
+
+  def user_params
+    params.require(:user)
+      .permit(:email, :is_admin, :password,
+              :password_confirmation)
+  end
+
+  def check_admin
+    permission_denied unless @current_user.admin?
+  end
+
+  def set_user
+    @user = User.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render status: :not_found,
+           json: {
+             error: "User #{params[:id]} not found"
+           }
   end
 end
